@@ -12,7 +12,6 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { ClipboardCheck, PenSquare, Bot } from 'lucide-react';
-import { AiReportGenerator } from '@/components/dashboard/ai-report-generator';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
 import type { Student, Subject, Exam, Mark, Attendance } from '@/lib/types';
@@ -72,10 +71,9 @@ export default async function TeacherPage() {
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Teacher's Dashboard</h1>
        <Tabs defaultValue="attendance" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-2">
           <TabsTrigger value="attendance"><ClipboardCheck className="mr-2 h-4 w-4" />Attendance</TabsTrigger>
           <TabsTrigger value="marks"><PenSquare className="mr-2 h-4 w-4" />Enter Marks</TabsTrigger>
-          <TabsTrigger value="reports"><Bot className="mr-2 h-4 w-4" />AI Reports</TabsTrigger>
         </TabsList>
         <TabsContent value="attendance" className="mt-4">
             <Card>
@@ -98,9 +96,6 @@ export default async function TeacherPage() {
                     <MarkEntryForm students={students} subjects={subjects} exams={exams} onSaveMark={handleSaveMark}/>
                 </CardContent>
             </Card>
-        </TabsContent>
-        <TabsContent value="reports" className="mt-4">
-            <AiReportGenerator />
         </TabsContent>
       </Tabs>
     </div>

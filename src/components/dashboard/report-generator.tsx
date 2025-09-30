@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { jsPDF } from 'jspdf';
+import type jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import type { Student, Class, Exam, Mark, Subject } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -314,8 +314,13 @@ export function ReportGenerator({
     setIsLoading(false);
   }
 
-  const handleDownloadPdf = () => {
+  const handleDownloadPdf = async () => {
     if (!reportData) return;
+    
+    const { jsPDF } = await import('jspdf');
+    // You need to import the autoTable plugin separately
+    await import('jspdf-autotable');
+
     const { title, meta, headers, rows, rawValues, analysis } = reportData;
     const doc = new jsPDF({ orientation: headers.length > 7 ? 'landscape' : 'portrait' });
     
@@ -348,31 +353,32 @@ export function ReportGenerator({
     if (analysis) {
         let finalY = (doc as any).lastAutoTable.finalY || tableStartY + 20;
         
-        // Add a new page if the analysis section will overflow
-        if (finalY > doc.internal.pageSize.getHeight() - 50) {
+        if (finalY > doc.internal.pageSize.getHeight() - 60) {
             doc.addPage();
-            finalY = 20; // Reset Y position for the new page
+            finalY = 20; 
         } else {
             finalY += 10;
         }
 
         doc.setFontSize(12);
         doc.text("Performance Analysis", 14, finalY);
-        finalY += 5;
+        finalY += 8;
         
         const gradeEntries = Object.entries(analysis.gradeDistribution);
-        const analysisHeaders = ['Grade', 'Count'];
-        const analysisBody = gradeEntries.map(([grade, count]) => [grade, count]);
+        const analysisHeaders = [['Grade', 'Count']];
+        const analysisBody = gradeEntries.map(([grade, count]) => [grade, count.toString()]);
         
         analysisBody.push(['', '']);
         analysisBody.push(['Mean Grade', analysis.meanGrade]);
-        analysisBody.push(['Total Students', analysis.entryCount]);
+        analysisBody.push(['Total Students', analysis.entryCount.toString()]);
         
         doc.autoTable({
             startY: finalY,
-            head: [analysisHeaders],
+            head: analysisHeaders,
             body: analysisBody,
-            theme: 'grid'
+            theme: 'grid',
+            styles: { fontSize: 8 },
+            headStyles: { fillColor: [220, 220, 220], textColor: 0, fontStyle: 'bold' },
         });
     }
     
@@ -628,5 +634,3 @@ export function ReportGenerator({
     </div>
   );
 }
-
-    
