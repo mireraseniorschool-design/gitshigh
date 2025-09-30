@@ -9,16 +9,16 @@ export default function DashboardLayout({
 }) {
   return (
     <SidebarProvider>
-      <div className="min-h-screen w-full bg-background text-foreground">
+      <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
         <Sidebar>
           <DashboardSidebar />
         </Sidebar>
-        <SidebarInset className="flex flex-col">
+        <div className="flex flex-col">
           <DashboardHeader />
-          <main className="flex-1 overflow-y-auto p-4 md:p-6 lg:p-8">
+          <main className="flex-1 overflow-y-auto bg-muted/40 p-4 md:p-6 lg:p-8">
             {children}
           </main>
-        </SidebarInset>
+        </div>
       </div>
     </SidebarProvider>
   );
