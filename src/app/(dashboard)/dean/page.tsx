@@ -11,12 +11,12 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { AiReportGenerator } from '@/components/dashboard/ai-report-generator';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import type { Student, Exam, Mark, Subject } from '@/lib/types';
+import type { Student, Exam, Mark, Subject, Class } from '@/lib/types';
 import { ExamsAndMarks } from '@/components/dashboard/exams-and-marks';
 import { AcademicAnalysisClient } from '@/components/dashboard/academic-analysis-client';
+import { ReportGenerator } from '@/components/dashboard/report-generator';
 
 async function getData() {
     const studentDocs = await getDocs(collection(db, 'students'));
@@ -31,23 +31,40 @@ async function getData() {
     const subjectDocs = await getDocs(collection(db, 'subjects'));
     const subjects = subjectDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Subject));
 
-    return { students, exams, marks, subjects };
+    const classDocs = await getDocs(collection(db, 'classes'));
+    const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
+
+    return { students, exams, marks, subjects, classes };
 }
 
 export default async function DeanPage() {
-  const { students, exams, marks, subjects } = await getData();
+  const { students, exams, marks, subjects, classes } = await getData();
 
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Dean's Dashboard</h1>
       <Tabs defaultValue="reports" className="w-full">
         <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="reports">AI Report Generator</TabsTrigger>
+          <TabsTrigger value="reports">Generate Reports</TabsTrigger>
           <TabsTrigger value="exams">Exams & Marks</TabsTrigger>
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
         </TabsList>
         <TabsContent value="reports" className="mt-4">
-          <AiReportGenerator />
+           <Card>
+            <CardHeader>
+              <CardTitle>Downloadable Reports</CardTitle>
+              <CardDescription>Generate and download academic reports in PDF format.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ReportGenerator 
+                students={students} 
+                classes={classes}
+                exams={exams}
+                marks={marks}
+                subjects={subjects}
+              />
+            </CardContent>
+          </Card>
         </TabsContent>
         <TabsContent value="exams" className="mt-4">
           <Card>
