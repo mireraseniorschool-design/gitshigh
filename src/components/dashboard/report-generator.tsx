@@ -251,7 +251,7 @@ export function ReportGenerator({
     const exam = exams.find(e => e.id === values.examId);
     if (!cls || !exam) return;
 
-    const classStudents = students.filter(s => s.classId === values.classId);
+    const classStudents = students.filter(s => s.classId === values.classId).sort((a,b) => parseInt(a.admissionNumber) - parseInt(b.admissionNumber));
     
     generateDetailedMarksheet(
         classStudents,
@@ -274,7 +274,7 @@ export function ReportGenerator({
 
     const formClasses = classes.filter(c => c.name === values.formName);
     const formStudentIds = students.filter(s => formClasses.some(fc => fc.id === s.classId)).map(s => s.id);
-    const formStudents = students.filter(s => formStudentIds.includes(s.id));
+    const formStudents = students.filter(s => formStudentIds.includes(s.id)).sort((a,b) => parseInt(a.admissionNumber) - parseInt(b.admissionNumber));
 
      generateDetailedMarksheet(
         formStudents,
@@ -347,9 +347,18 @@ export function ReportGenerator({
 
     if (analysis) {
         let finalY = (doc as any).lastAutoTable.finalY || tableStartY + 20;
-        doc.addPage();
+        
+        // Add a new page if the analysis section will overflow
+        if (finalY > doc.internal.pageSize.getHeight() - 50) {
+            doc.addPage();
+            finalY = 20; // Reset Y position for the new page
+        } else {
+            finalY += 10;
+        }
+
         doc.setFontSize(12);
-        doc.text("Performance Analysis", 14, 20);
+        doc.text("Performance Analysis", 14, finalY);
+        finalY += 5;
         
         const gradeEntries = Object.entries(analysis.gradeDistribution);
         const analysisHeaders = ['Grade', 'Count'];
@@ -360,7 +369,7 @@ export function ReportGenerator({
         analysisBody.push(['Total Students', analysis.entryCount]);
         
         doc.autoTable({
-            startY: 25,
+            startY: finalY,
             head: [analysisHeaders],
             body: analysisBody,
             theme: 'grid'
@@ -484,7 +493,10 @@ export function ReportGenerator({
                                 <SelectTrigger><SelectValue placeholder="Select a student" /></SelectTrigger>
                                 </FormControl>
                                 <SelectContent>
-                                {students.filter(s => !selectedClassId || selectedClassId === 'all' || s.classId === selectedClassId).map((student) => (
+                                {students
+                                    .filter(s => !selectedClassId || selectedClassId === 'all' || s.classId === selectedClassId)
+                                    .sort((a,b) => parseInt(a.admissionNumber) - parseInt(b.admissionNumber))
+                                    .map((student) => (
                                     <SelectItem key={student.id} value={student.id}>{student.name} ({student.admissionNumber})</SelectItem>
                                 ))}
                                 </SelectContent>
@@ -590,8 +602,8 @@ export function ReportGenerator({
                 {reportData.analysis && (
                     <div className="mt-6">
                         <h3 className="text-lg font-semibold mb-2">Analysis Summary</h3>
-                        <div className="border rounded-lg p-4 max-w-md">
-                            <Table>
+                        <div className="border rounded-lg p-4 overflow-x-auto">
+                            <Table className='text-xs'>
                                 <TableHeader>
                                     <TableRow>
                                         {Object.keys(reportData.analysis.gradeDistribution).map(grade => <TableHead key={grade}>{grade}</TableHead>)}
@@ -616,3 +628,5 @@ export function ReportGenerator({
     </div>
   );
 }
+
+    

@@ -47,7 +47,6 @@ const deanLinks = [
   { href: '/dean/students', label: 'Students', icon: Users },
   { href: '/dean/exams', label: 'Exams & Marks', icon: GraduationCap },
   { href: '/dean/analysis', label: 'Analysis', icon: Presentation },
-  { href: '/dean/reports', label: 'AI Reports', icon: Bot },
 ];
 
 const teacherLinks = [
@@ -138,3 +137,5 @@ export function DashboardSidebar() {
     </>
   );
 }
+
+    
