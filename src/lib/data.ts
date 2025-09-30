@@ -2,18 +2,18 @@ import type { Student, Teacher, Class, Subject, Fee, User, Mark, Exam, Attendanc
 import { placeholderImages } from './placeholder-images.json';
 
 export const users: User[] = [
-  { id: 'user-1', name: 'Admin User', email: 'admin@mirera.ac.ke', role: 'Admin', avatarUrl: placeholderImages[0].imageUrl },
-  { id: 'user-2', name: 'Dean User', email: 'dean@mirera.ac.ke', role: 'Dean', avatarUrl: placeholderImages[1].imageUrl },
-  { id: 'user-3', name: 'Teacher User', email: 'teacher@mirera.ac.ke', role: 'Teacher', avatarUrl: placeholderImages[2].imageUrl },
-  { id: 'user-4', name: 'Accountant User', email: 'accountant@mirera.ac.ke', role: 'Accountant', avatarUrl: placeholderImages[3].imageUrl },
+  { id: 'user-1', name: 'Admin User', email: 'admin@gits.ac.ke', role: 'Admin', avatarUrl: placeholderImages[0].imageUrl },
+  { id: 'user-2', name: 'Dean User', email: 'dean@gits.ac.ke', role: 'Dean', avatarUrl: placeholderImages[1].imageUrl },
+  { id: 'user-3', name: 'Teacher User', email: 'teacher@gits.ac.ke', role: 'Teacher', avatarUrl: placeholderImages[2].imageUrl },
+  { id: 'user-4', name: 'Accountant User', email: 'accountant@gits.ac.ke', role: 'Accountant', avatarUrl: placeholderImages[3].imageUrl },
 ];
 
 export const students: Student[] = [
-  { id: 'std-1', admissionNumber: 'MHS-001', name: 'Alice Johnson', classId: 'cls-1', guardianName: 'John Johnson', guardianPhone: '0712345678', avatarUrl: placeholderImages[4].imageUrl, dateOfBirth: '2008-05-10' },
-  { id: 'std-2', admissionNumber: 'MHS-002', name: 'Bob Williams', classId: 'cls-1', guardianName: 'Jane Williams', guardianPhone: '0723456789', avatarUrl: placeholderImages[5].imageUrl, dateOfBirth: '2008-03-15' },
-  { id: 'std-3', admissionNumber: 'MHS-003', name: 'Charlie Brown', classId: 'cls-2', guardianName: 'Chris Brown', guardianPhone: '0734567890', avatarUrl: placeholderImages[6].imageUrl, dateOfBirth: '2007-11-20' },
-  { id: 'std-4', admissionNumber: 'MHS-004', name: 'Diana Miller', classId: 'cls-3', guardianName: 'David Miller', guardianPhone: '0745678901', avatarUrl: placeholderImages[7].imageUrl, dateOfBirth: '2009-01-30' },
-  { id: 'std-5', admissionNumber: 'MHS-005', name: 'Ethan Davis', classId: 'cls-2', guardianName: 'Emily Davis', guardianPhone: '0756789012', avatarUrl: placeholderImages[8].imageUrl, dateOfBirth: '2007-09-05' },
+  { id: 'std-1', admissionNumber: 'GHS-001', name: 'Alice Johnson', classId: 'cls-1', guardianName: 'John Johnson', guardianPhone: '0712345678', avatarUrl: placeholderImages[4].imageUrl, dateOfBirth: '2008-05-10' },
+  { id: 'std-2', admissionNumber: 'GHS-002', name: 'Bob Williams', classId: 'cls-1', guardianName: 'Jane Williams', guardianPhone: '0723456789', avatarUrl: placeholderImages[5].imageUrl, dateOfBirth: '2008-03-15' },
+  { id: 'std-3', admissionNumber: 'GHS-003', name: 'Charlie Brown', classId: 'cls-2', guardianName: 'Chris Brown', guardianPhone: '0734567890', avatarUrl: placeholderImages[6].imageUrl, dateOfBirth: '2007-11-20' },
+  { id: 'std-4', admissionNumber: 'GHS-004', name: 'Diana Miller', classId: 'cls-3', guardianName: 'David Miller', guardianPhone: '0745678901', avatarUrl: placeholderImages[7].imageUrl, dateOfBirth: '2009-01-30' },
+  { id: 'std-5', admissionNumber: 'GHS-005', name: 'Ethan Davis', classId: 'cls-2', guardianName: 'Emily Davis', guardianPhone: '0756789012', avatarUrl: placeholderImages[8].imageUrl, dateOfBirth: '2007-09-05' },
   { "id": "std-4710", "admissionNumber": "4710", "name": "NJAMBI CLEMENCY GIFT", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4710/200/300", "dateOfBirth": "2009-01-01" },
   { "id": "std-4717", "admissionNumber": "4717", "name": "LUSIRE ELIZABETH NJOKI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4717/200/300", "dateOfBirth": "2009-01-01" },
   { "id": "std-4496", "admissionNumber": "4496", "name": "KASHU TERESIA NAIRESIAE", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4496/200/300", "dateOfBirth": "2009-01-01" },
@@ -47,9 +47,9 @@ export const students: Student[] = [
 ];
 
 export const teachers: Teacher[] = [
-  { id: 'tch-1', staffId: 'TS-01', name: 'Mr. Peter Jones', subjectIds: ['sub-1', 'sub-2'], email: 'peter.jones@mirera.ac.ke', phone: '0701234567', avatarUrl: placeholderImages[9].imageUrl },
-  { id: 'tch-2', staffId: 'TS-02', name: 'Ms. Susan White', subjectIds: ['sub-3', 'sub-4'], email: 'susan.white@mirera.ac.ke', phone: '0702345678', avatarUrl: placeholderImages[10].imageUrl },
-  { id: 'tch-3', staffId: 'TS-03', name: 'Mr. Ken Omondi', subjectIds: ['sub-5', 'sub-6'], email: 'ken.omondi@mirera.ac.ke', phone: '0703456789', avatarUrl: placeholderImages[11].imageUrl },
+  { id: 'tch-1', staffId: 'TS-01', name: 'Mr. Peter Jones', subjectIds: ['sub-1', 'sub-2'], email: 'peter.jones@gits.ac.ke', phone: '0701234567', avatarUrl: placeholderImages[9].imageUrl },
+  { id: 'tch-2', staffId: 'TS-02', name: 'Ms. Susan White', subjectIds: ['sub-3', 'sub-4'], email: 'susan.white@gits.ac.ke', phone: '0702345678', avatarUrl: placeholderImages[10].imageUrl },
+  { id: 'tch-3', staffId: 'TS-03', name: 'Mr. Ken Omondi', subjectIds: ['sub-5', 'sub-6'], email: 'ken.omondi@gits.ac.ke', phone: '0703456789', avatarUrl: placeholderImages[11].imageUrl },
 ];
 
 export const classes: Class[] = [
@@ -315,4 +315,5 @@ export const attendance: Attendance[] = [
     { studentId: 'std-1', date: '2024-07-29', status: 'Present' },
     { studentId: 'std-2', date: '2024-07-29', status: 'Present' },
 ];
+
 

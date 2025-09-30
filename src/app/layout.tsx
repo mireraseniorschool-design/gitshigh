@@ -4,8 +4,8 @@ import { cn } from '@/lib/utils';
 import { Toaster } from "@/components/ui/toaster"
 
 export const metadata: Metadata = {
-  title: 'Mirera Hub',
-  description: 'Mirera High School Management System',
+  title: 'GITS HIGH',
+  description: 'GITS HIGH Management System',
 };
 
 export default function RootLayout({

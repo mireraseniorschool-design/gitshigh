@@ -73,10 +73,10 @@ export default function LoginPage() {
           <GraduationCap className="h-12 w-12" />
         </div>
         <h1 className="font-headline text-4xl font-bold tracking-tight text-foreground md:text-5xl">
-          Welcome to Mirera Hub
+          Welcome to GITS HIGH
         </h1>
         <p className="mt-2 text-lg text-muted-foreground">
-          The all-in-one management system for Mirera High School.
+          The all-in-one management system for GITS HIGH.
         </p>
       </div>
       <Card className="w-full max-w-md shadow-lg">
@@ -133,7 +133,7 @@ export default function LoginPage() {
       </Card>
       
       <footer className="mt-8 text-center text-sm text-muted-foreground">
-        <p>&copy; {new Date().getFullYear()} Mirera High School. All rights reserved.</p>
+        <p>&copy; {new Date().getFullYear()} GITS HIGH. All rights reserved.</p>
       </footer>
     </div>
   );
