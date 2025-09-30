@@ -12,7 +12,10 @@ import {
   TabsTrigger,
 } from '@/components/ui/tabs';
 import { Users, User, Book, Banknote } from 'lucide-react';
-import { students, teachers, classes, fees } from '@/lib/data';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import type { Student, Teacher, Class, Fee } from '@/lib/types';
+
 
 // Dummy components for content
 const StudentManagement = () => (
@@ -49,7 +52,24 @@ const ClassManagement = () => (
   </Card>
 );
 
-export default function AdminPage() {
+async function getData() {
+    const studentDocs = await getDocs(collection(db, 'students'));
+    const students = studentDocs.docs.map(doc => doc.data() as Student);
+
+    const teacherDocs = await getDocs(collection(db, 'teachers'));
+    const teachers = teacherDocs.docs.map(doc => doc.data() as Teacher);
+
+    const classDocs = await getDocs(collection(db, 'classes'));
+    const classes = classDocs.docs.map(doc => doc.data() as Class);
+
+    const feeDocs = await getDocs(collection(db, 'fees'));
+    const fees = feeDocs.docs.map(doc => doc.data() as Fee);
+    
+    return { students, teachers, classes, fees };
+}
+
+export default async function AdminPage() {
+  const { students, teachers, classes, fees } = await getData();
   const totalStudents = students.length;
   const totalTeachers = teachers.length;
   const totalClasses = classes.length;
