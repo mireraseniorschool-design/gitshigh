@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -38,19 +38,28 @@ export function AttendanceManager({
   onSaveAttendance: (data: { studentId: string, status: 'Present' | 'Absent' | 'Late', date: string }[]) => Promise<{ success: boolean; message?: string }>;
 }) {
   const [isLoading, setIsLoading] = useState(false);
+  const [isClient, setIsClient] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      date: new Date(),
-      attendance: students.map(student => {
-          const todaysAttendance = attendance.find(a => a.studentId === student.id && a.date === format(new Date(), 'yyyy-MM-dd'));
-          return { studentId: student.id, status: todaysAttendance?.status || 'Present' };
-      }),
+      // Set a non-dynamic default, will be updated by useEffect on client
+      date: new Date(0), 
+      attendance: students.map(student => ({
+        studentId: student.id,
+        status: 'Present',
+      })),
     },
   });
+
+  useEffect(() => {
+    setIsClient(true);
+    const today = new Date();
+    form.setValue('date', today);
+    handleDateChange(today);
+  }, []); // Empty dependency array ensures this runs once on mount
 
   const handleDateChange = (date: Date | undefined) => {
     if (!date) return;
@@ -87,6 +96,26 @@ export function AttendanceManager({
         });
     }
     setIsLoading(false);
+  }
+  
+  if (!isClient) {
+    // Render a loading state or skeleton to avoid hydration mismatch
+    return (
+        <div className="space-y-6">
+            <div className="flex items-center gap-4">
+                <div className="h-10 w-[280px] bg-muted rounded-md animate-pulse"></div>
+            </div>
+            <div className="space-y-4 rounded-md border p-4">
+                {students.slice(0, 5).map(student => (
+                    <div key={student.id} className="flex items-center justify-between">
+                        <div className="h-6 w-32 bg-muted rounded-md animate-pulse"></div>
+                        <div className="h-6 w-64 bg-muted rounded-md animate-pulse"></div>
+                    </div>
+                ))}
+            </div>
+            <div className="h-10 w-32 bg-muted rounded-md animate-pulse"></div>
+        </div>
+    );
   }
 
   return (
