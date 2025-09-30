@@ -50,21 +50,13 @@ export default async function DeanPage() {
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
         </TabsList>
         <TabsContent value="reports" className="mt-4">
-           <Card>
-            <CardHeader>
-              <CardTitle>Downloadable Reports</CardTitle>
-              <CardDescription>Generate and download academic reports in PDF format.</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ReportGenerator 
-                students={students} 
-                classes={classes}
-                exams={exams}
-                marks={marks}
-                subjects={subjects}
-              />
-            </CardContent>
-          </Card>
+            <ReportGenerator 
+            students={students} 
+            classes={classes}
+            exams={exams}
+            marks={marks}
+            subjects={subjects}
+            />
         </TabsContent>
         <TabsContent value="exams" className="mt-4">
           <Card>
