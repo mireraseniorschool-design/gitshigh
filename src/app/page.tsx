@@ -1,4 +1,6 @@
-import Link from 'next/link';
+'use client';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import {
   Card,
   CardContent,
@@ -7,16 +9,41 @@ import {
   CardTitle,
 } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { GraduationCap, Shield, User, PenSquare, Banknote } from 'lucide-react';
-
-const roles = [
-  { name: 'Admin', href: '/admin', icon: Shield },
-  { name: 'Dean of Studies', href: '/dean', icon: PenSquare },
-  { name: 'Teacher', href: '/teacher', icon: User },
-  { name: 'Accountant', href: '/accountant', icon: Banknote },
-];
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
+import { GraduationCap } from 'lucide-react';
+import { users } from '@/lib/data';
 
 export default function LoginPage() {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const router = useRouter();
+  const { toast } = useToast();
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    setError('');
+
+    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+
+    if (user && password === '123456') {
+      toast({
+        title: 'Login Successful',
+        description: `Welcome back, ${user.name}!`,
+      });
+      router.push(`/${user.role.toLowerCase()}`);
+    } else {
+      setError('Invalid email or password.');
+      toast({
+        variant: 'destructive',
+        title: 'Login Failed',
+        description: 'Invalid email or password.',
+      });
+    }
+  };
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
       <div className="mb-8 flex flex-col items-center text-center">
@@ -33,33 +60,51 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-center text-2xl">
-            Select Your Role
+            Sign In
           </CardTitle>
           <CardDescription className="text-center">
-            Choose your role to access your dashboard.
+            Enter your credentials to access your dashboard.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-            {roles.map((role) => (
-              <Button
-                key={role.name}
-                asChild
-                variant="outline"
-                size="lg"
-                className="h-auto justify-start p-4 text-left"
-              >
-                <Link href={role.href} className="flex items-center gap-4">
-                  <role.icon className="h-6 w-6 text-primary" />
-                  <div className="flex flex-col">
-                    <span className="font-semibold">{role.name}</span>
-                  </div>
-                </Link>
-              </Button>
-            ))}
-          </div>
+          <form onSubmit={handleLogin} className="space-y-4">
+            <div className="space-y-2">
+              <Label htmlFor="email">Email</Label>
+              <Input
+                id="email"
+                type="email"
+                placeholder="user@mirera.ac.ke"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="password">Password</Label>
+              <Input
+                id="password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+              />
+            </div>
+            {error && (
+                <p className="text-sm font-medium text-destructive">{error}</p>
+            )}
+            <Button type="submit" className="w-full">
+              Login
+            </Button>
+          </form>
         </CardContent>
       </Card>
+       <div className="mt-4 text-sm text-muted-foreground">
+          <p>Use one of the following emails to log in:</p>
+          <ul className="mt-2 list-disc list-inside text-xs">
+            {users.map(u => <li key={u.id}>{u.email} ({u.role})</li>)}
+          </ul>
+          <p className="mt-2">The password for all users is: <span className="font-mono font-bold">123456</span></p>
+        </div>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Mirera High School. All rights reserved.</p>
       </footer>
