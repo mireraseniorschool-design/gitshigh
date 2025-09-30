@@ -11,38 +11,56 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { FileText, Banknote, Presentation, IndianRupee } from 'lucide-react';
-import { fees } from '@/lib/data';
+import { FileText, Banknote } from 'lucide-react';
+import { db } from '@/lib/firebase';
+import { collection, getDocs, doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
+import type { Fee } from '@/lib/types';
+import { FeeInvoicesTable } from '@/components/dashboard/fee-invoices-table';
+import { LogPaymentForm } from '@/components/dashboard/log-payment-form';
+import { students } from '@/lib/data';
 
-const totalInvoiced = fees.reduce((sum, fee) => sum + fee.amount, 0);
-const totalPaid = fees.reduce((sum, fee) => sum + fee.paidAmount, 0);
-const totalBalance = totalInvoiced - totalPaid;
+async function getData() {
+    const feeDocs = await getDocs(collection(db, 'fees'));
+    const fees = feeDocs.docs.map(doc => doc.data() as Fee);
+    
+    const studentDocs = await getDocs(collection(db, 'students'));
+    const students = studentDocs.docs.map(doc => ({ id: doc.id, name: doc.data().name, admissionNumber: doc.data().admissionNumber }));
 
-const InvoiceManagement = () => (
-    <Card>
-        <CardHeader>
-            <CardTitle>Fee Invoices</CardTitle>
-            <CardDescription>View and manage all student fee invoices.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <p>Invoice management table will be here.</p>
-        </CardContent>
-    </Card>
-)
+    return { fees, students };
+}
 
-const PaymentLogging = () => (
-    <Card>
-        <CardHeader>
-            <CardTitle>Record Payments</CardTitle>
-            <CardDescription>Log new fee payments from students.</CardDescription>
-        </CardHeader>
-        <CardContent>
-            <p>Payment recording interface will be here.</p>
-        </CardContent>
-    </Card>
-)
+export default async function AccountantPage() {
+  const { fees, students } = await getData();
 
-export default function AccountantPage() {
+  const totalInvoiced = fees.reduce((sum, fee) => sum + fee.amount, 0);
+  const totalPaid = fees.reduce((sum, fee) => sum + fee.paidAmount, 0);
+  const totalBalance = totalInvoiced - totalPaid;
+
+  async function handleLogPayment(data: { studentId: string; amount: number; }) {
+    'use server';
+    
+    const feesCollectionRef = collection(db, 'fees');
+    const studentFeeDocRef = doc(feesCollectionRef, data.studentId);
+    
+    const feeDocSnap = await getDoc(doc(db, 'fees', `inv-${data.studentId.split('-')[1]}`));
+
+    if (feeDocSnap.exists()) {
+        const feeData = feeDocSnap.data() as Fee;
+        const newPaidAmount = feeData.paidAmount + data.amount;
+        const newBalance = feeData.amount - newPaidAmount;
+        const newStatus = newBalance <= 0 ? 'Paid' : 'Partial';
+
+        await updateDoc(feeDocSnap.ref, {
+            paidAmount: newPaidAmount,
+            balance: newBalance,
+            status: newStatus
+        });
+        return { success: true };
+    }
+    return { success: false, message: 'Could not find invoice for the student.' };
+  }
+
+
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Finance Dashboard</h1>
@@ -70,7 +88,7 @@ export default function AccountantPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Outstanding Balance</CardTitle>
-            <Presentation className="h-4 w-4 text-muted-foreground" />
+            <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">KES {totalBalance.toLocaleString()}</div>
@@ -85,10 +103,26 @@ export default function AccountantPage() {
                 <TabsTrigger value="payments">Log Payment</TabsTrigger>
             </TabsList>
             <TabsContent value="invoices" className='mt-4'>
-                <InvoiceManagement />
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Fee Invoices</CardTitle>
+                        <CardDescription>View and manage all student fee invoices.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <FeeInvoicesTable fees={fees} students={students} />
+                    </CardContent>
+                </Card>
             </TabsContent>
             <TabsContent value="payments" className='mt-4'>
-                <PaymentLogging />
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Record Payments</CardTitle>
+                        <CardDescription>Log new fee payments from students.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                        <LogPaymentForm students={students} onLogPayment={handleLogPayment} />
+                    </CardContent>
+                </Card>
             </TabsContent>
         </Tabs>
       </div>

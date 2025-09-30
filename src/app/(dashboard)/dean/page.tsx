@@ -11,35 +11,32 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { Presentation, GraduationCap } from 'lucide-react';
 import { AiReportGenerator } from '@/components/dashboard/ai-report-generator';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import type { Student, Exam, Mark, Subject } from '@/lib/types';
+import { ExamsAndMarks } from '@/components/dashboard/exams-and-marks';
+import { AcademicAnalysisClient } from '@/components/dashboard/academic-analysis-client';
 
-// Dummy components for content
-const ExamManagement = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Exams & Marks</CardTitle>
-      <CardDescription>Create exams and manage student marks.</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <p>Exam and marks entry interface will be here.</p>
-    </CardContent>
-  </Card>
-);
+async function getData() {
+    const studentDocs = await getDocs(collection(db, 'students'));
+    const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
 
-const AcademicAnalysis = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Academic Analysis</CardTitle>
-      <CardDescription>View performance charts for classes and subjects.</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <p>Charts and graphs for academic analysis will be here.</p>
-    </CardContent>
-  </Card>
-);
+    const examDocs = await getDocs(collection(db, 'exams'));
+    const exams = examDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Exam));
+    
+    const marksQuery = await getDocs(collection(db, 'marks'));
+    const marks = marksQuery.docs.map(doc => doc.data() as Mark);
 
-export default function DeanPage() {
+    const subjectDocs = await getDocs(collection(db, 'subjects'));
+    const subjects = subjectDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Subject));
+
+    return { students, exams, marks, subjects };
+}
+
+export default async function DeanPage() {
+  const { students, exams, marks, subjects } = await getData();
+
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Dean's Dashboard</h1>
@@ -53,10 +50,26 @@ export default function DeanPage() {
           <AiReportGenerator />
         </TabsContent>
         <TabsContent value="exams" className="mt-4">
-          <ExamManagement />
+          <Card>
+            <CardHeader>
+              <CardTitle>Exams & Marks</CardTitle>
+              <CardDescription>View exams and student marks.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ExamsAndMarks exams={exams} marks={marks} students={students} subjects={subjects} />
+            </CardContent>
+          </Card>
         </TabsContent>
         <TabsContent value="analysis" className="mt-4">
-          <AcademicAnalysis />
+          <Card>
+            <CardHeader>
+              <CardTitle>Academic Analysis</CardTitle>
+              <CardDescription>View performance charts for classes and subjects.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <AcademicAnalysisClient marks={marks} subjects={subjects} students={students} />
+            </CardContent>
+          </Card>
         </TabsContent>
       </Tabs>
     </div>
