@@ -15,20 +15,10 @@ import { Users, User, Book, Banknote } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import type { Student, Teacher, Class, Fee } from '@/lib/types';
+import { StudentsTable } from '@/components/dashboard/students-table';
 
 
 // Dummy components for content
-const StudentManagement = () => (
-  <Card>
-    <CardHeader>
-      <CardTitle>Manage Students</CardTitle>
-      <CardDescription>Add, edit, or remove student records.</CardDescription>
-    </CardHeader>
-    <CardContent>
-      <p>Student management table and actions will be here.</p>
-    </CardContent>
-  </Card>
-);
 const TeacherManagement = () => (
   <Card>
     <CardHeader>
@@ -130,7 +120,15 @@ export default async function AdminPage() {
             <TabsTrigger value="classes">Classes</TabsTrigger>
           </TabsList>
           <TabsContent value="students" className="mt-4">
-            <StudentManagement />
+            <Card>
+              <CardHeader>
+                <CardTitle>Manage Students</CardTitle>
+                <CardDescription>View and manage all student records.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <StudentsTable students={students} />
+              </CardContent>
+            </Card>
           </TabsContent>
           <TabsContent value="teachers" className="mt-4">
             <TeacherManagement />
