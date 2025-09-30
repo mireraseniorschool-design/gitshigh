@@ -40,7 +40,8 @@ type ReportData = {
     rawValues: FormData;
     analysis?: {
         gradeDistribution: Record<string, number>;
-        [key: string]: any;
+        meanGrade: string;
+        entryCount: number;
     }
 }
 
@@ -77,25 +78,18 @@ export function ReportGenerator({
   const getClassName = (classId: string) => classes.find(c => c.id === classId)?.name || 'N/A';
   const getExamName = (examId: string) => exams.find(e => e.id === examId)?.name || 'N/A';
 
-  const getGrade = (score: number, isAverage = false) => {
-    if (isAverage) {
-        if (score >= 80) return 'A';
-        if (score >= 75) return 'A-';
-        if (score >= 70) return 'B+';
-        if (score >= 65) return 'B';
-        if (score >= 60) return 'B-';
-        if (score >= 55) return 'C+';
-        if (score >= 50) return 'C';
-        if (score >= 45) return 'C-';
-        if (score >= 40) return 'D+';
-        if (score >= 35) return 'D';
-        if (score >= 30) return 'D-';
-        return 'E';
-    }
+  const getGrade = (score: number) => {
     if (score >= 80) return 'A';
-    if (score >= 60) return 'B';
-    if (score >= 40) return 'C';
-    if (score >= 30) return 'D';
+    if (score >= 75) return 'A-';
+    if (score >= 70) return 'B+';
+    if (score >= 65) return 'B';
+    if (score >= 60) return 'B-';
+    if (score >= 55) return 'C+';
+    if (score >= 50) return 'C';
+    if (score >= 45) return 'C-';
+    if (score >= 40) return 'D+';
+    if (score >= 35) return 'D';
+    if (score >= 30) return 'D-';
     return 'E';
   };
 
@@ -121,7 +115,7 @@ export function ReportGenerator({
     const average = studentMarks.length > 0 ? totalMarks / studentMarks.length : 0;
     
     rows.push(['Total Marks', totalMarks.toString(), '']);
-    rows.push(['Average Score', average.toFixed(2), getGrade(average, true)]);
+    rows.push(['Average Score', average.toFixed(2), getGrade(average)]);
 
     setReportData({
         title: 'Student Marksheet',
@@ -166,7 +160,7 @@ export function ReportGenerator({
         data.name,
         data.totalMarks.toFixed(0),
         data.average.toFixed(2),
-        getGrade(data.average, true)
+        getGrade(data.average)
     ]);
 
      setReportData({
@@ -196,11 +190,11 @@ export function ReportGenerator({
         const studentMarks = marks.filter(m => m.studentId === student.id && m.examId === values.examId);
         const totalMarks = studentMarks.reduce((sum, mark) => sum + mark.score, 0);
         const average = studentMarks.length > 0 ? totalMarks / studentMarks.length : 0;
-        const grade = getGrade(average, true);
+        const grade = getGrade(average);
         
         const subjectScores = examSubjects.map(subj => {
             const mark = studentMarks.find(m => m.subjectId === subj.id);
-            return mark ? mark.score : '-';
+            return mark ? `${mark.score} ${getGrade(mark.score)}` : '-';
         });
 
         return {
@@ -223,10 +217,16 @@ export function ReportGenerator({
         perf.grade
     ]);
 
-    const gradeDistribution = studentPerformance.reduce((acc, perf) => {
-        acc[perf.grade] = (acc[perf.grade] || 0) + 1;
-        return acc;
-    }, {} as Record<string, number>);
+    const allGrades = ['A','A-','B+','B','B-','C+','C','C-','D+','D','D-','E'];
+    const gradeDistribution = allGrades.reduce((acc, grade) => ({...acc, [grade]: 0}), {} as Record<string, number>);
+    
+    studentPerformance.forEach(perf => {
+        if(gradeDistribution[perf.grade] !== undefined) {
+           gradeDistribution[perf.grade]++;
+        }
+    });
+
+    const totalAverage = studentPerformance.reduce((sum, p) => sum + p.average, 0) / (studentPerformance.length || 1);
 
     setReportData({
         title,
@@ -235,7 +235,9 @@ export function ReportGenerator({
         meta,
         rawValues: values,
         analysis: {
-            gradeDistribution
+            gradeDistribution,
+            meanGrade: getGrade(totalAverage),
+            entryCount: studentPerformance.length
         }
     });
   }
@@ -334,8 +336,8 @@ export function ReportGenerator({
       head: [headers],
       body: rows,
       theme: 'grid',
-      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
-      styles: { fontSize: headers.length > 10 ? 6 : 8, cellPadding: 1.5 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255, fontSize: 7, fontStyle: 'bold' },
+      styles: { fontSize: 7, cellPadding: 1 },
       didDrawPage: (data) => {
         // Footer
         doc.setFontSize(8);
@@ -349,11 +351,18 @@ export function ReportGenerator({
         doc.setFontSize(12);
         doc.text("Performance Analysis", 14, 20);
         
-        const gradeEntries = Object.entries(analysis.gradeDistribution).sort((a,b) => a[0].localeCompare(b[0]));
+        const gradeEntries = Object.entries(analysis.gradeDistribution);
+        const analysisHeaders = ['Grade', 'Count'];
+        const analysisBody = gradeEntries.map(([grade, count]) => [grade, count]);
+        
+        analysisBody.push(['', '']);
+        analysisBody.push(['Mean Grade', analysis.meanGrade]);
+        analysisBody.push(['Total Students', analysis.entryCount]);
+        
         doc.autoTable({
             startY: 25,
-            head: [['Grade', 'Number of Students']],
-            body: gradeEntries,
+            head: [analysisHeaders],
+            body: analysisBody,
             theme: 'grid'
         });
     }
@@ -383,7 +392,7 @@ export function ReportGenerator({
         studentId: '',
         formName: '',
     });
-  }, [reportType]);
+  }, [reportType, form]);
 
   const formNames = [...new Set(classes.map(c => c.name))].sort();
 
@@ -561,17 +570,17 @@ export function ReportGenerator({
             </CardHeader>
             <CardContent>
                 <div className="overflow-x-auto">
-                    <Table>
+                    <Table className="text-xs">
                         <TableHeader>
                             <TableRow>
-                                {reportData.headers.map(header => <TableHead key={header}>{header}</TableHead>)}
+                                {reportData.headers.map(header => <TableHead key={header} className="px-2 py-2">{header}</TableHead>)}
                             </TableRow>
                         </TableHeader>
                         <TableBody>
                             {reportData.rows.map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
                                     {row.map((cell, cellIndex) => (
-                                        <TableCell key={cellIndex} className={cellIndex === 0 ? 'font-bold' : ''}>{cell}</TableCell>
+                                        <TableCell key={cellIndex} className={`px-2 py-1 ${cellIndex === 2 ? 'whitespace-nowrap' : ''} ${cellIndex === 0 ? 'font-bold' : ''}`}>{cell}</TableCell>
                                     ))}
                                 </TableRow>
                             ))}
@@ -580,16 +589,24 @@ export function ReportGenerator({
                 </div>
                 {reportData.analysis && (
                     <div className="mt-6">
-                        <h3 className="text-lg font-semibold mb-2">Performance Analysis</h3>
-                        <div className="flex flex-wrap gap-4">
-                        {Object.entries(reportData.analysis.gradeDistribution).sort((a,b) => a[0].localeCompare(b[0])).map(([grade, count]) => (
-                            <div key={grade} className="flex items-center gap-2 rounded-md border p-3">
-                                <span className="font-bold text-2xl text-primary">{grade}</span>
-                                <div>
-                                    <div className="font-semibold">{count} Student{Number(count) > 1 ? 's' : ''}</div>
-                                </div>
-                            </div>
-                        ))}
+                        <h3 className="text-lg font-semibold mb-2">Analysis Summary</h3>
+                        <div className="border rounded-lg p-4 max-w-md">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow>
+                                        {Object.keys(reportData.analysis.gradeDistribution).map(grade => <TableHead key={grade}>{grade}</TableHead>)}
+                                        <TableHead>ENTRY</TableHead>
+                                        <TableHead>MEAN GRADE</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    <TableRow>
+                                        {Object.values(reportData.analysis.gradeDistribution).map((count, i) => <TableCell key={i}>{count}</TableCell>)}
+                                        <TableCell>{reportData.analysis.entryCount}</TableCell>
+                                        <TableCell>{reportData.analysis.meanGrade}</TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
                         </div>
                     </div>
                 )}
