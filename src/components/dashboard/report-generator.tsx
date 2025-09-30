@@ -38,6 +38,10 @@ type ReportData = {
     rows: (string | number)[][];
     meta: Record<string, string>;
     rawValues: FormData;
+    analysis?: {
+        gradeDistribution: Record<string, number>;
+        [key: string]: any;
+    }
 }
 
 export function ReportGenerator({
@@ -73,6 +77,28 @@ export function ReportGenerator({
   const getClassName = (classId: string) => classes.find(c => c.id === classId)?.name || 'N/A';
   const getExamName = (examId: string) => exams.find(e => e.id === examId)?.name || 'N/A';
 
+  const getGrade = (score: number, isAverage = false) => {
+    if (isAverage) {
+        if (score >= 80) return 'A';
+        if (score >= 75) return 'A-';
+        if (score >= 70) return 'B+';
+        if (score >= 65) return 'B';
+        if (score >= 60) return 'B-';
+        if (score >= 55) return 'C+';
+        if (score >= 50) return 'C';
+        if (score >= 45) return 'C-';
+        if (score >= 40) return 'D+';
+        if (score >= 35) return 'D';
+        if (score >= 30) return 'D-';
+        return 'E';
+    }
+    if (score >= 80) return 'A';
+    if (score >= 60) return 'B';
+    if (score >= 40) return 'C';
+    if (score >= 30) return 'D';
+    return 'E';
+  };
+
   const previewMarksheet = (values: FormData) => {
     if (!values.studentId) {
         toast({ variant: 'destructive', title: 'Error', description: 'Please select a student for the marksheet.' });
@@ -88,14 +114,14 @@ export function ReportGenerator({
     const rows = studentMarks.map(mark => [
       getSubjectName(mark.subjectId),
       mark.score,
-      mark.score >= 80 ? 'A' : mark.score >= 60 ? 'B' : mark.score >= 40 ? 'C' : 'D'
+      getGrade(mark.score)
     ]);
     
     const totalMarks = studentMarks.reduce((sum, mark) => sum + mark.score, 0);
     const average = studentMarks.length > 0 ? totalMarks / studentMarks.length : 0;
     
     rows.push(['Total Marks', totalMarks.toString(), '']);
-    rows.push(['Average Score', average.toFixed(2), '']);
+    rows.push(['Average Score', average.toFixed(2), getGrade(average, true)]);
 
     setReportData({
         title: 'Student Marksheet',
@@ -119,22 +145,29 @@ export function ReportGenerator({
     const exam = exams.find(e => e.id === values.examId);
     if (!cls || !exam) return;
 
-    const classStudents = students
-      .filter(s => s.classId === values.classId)
-      .sort((a,b) => parseInt(a.admissionNumber.split('-')[1]) - parseInt(b.admissionNumber.split('-')[1]));
+    const classStudents = students.filter(s => s.classId === values.classId);
 
-    const headers = ['Adm No', 'Student Name', 'Total Marks', 'Average (%)'];
-    const rows = classStudents.map(student => {
+    const studentData = classStudents.map(student => {
         const studentMarks = marks.filter(m => m.studentId === student.id && m.examId === values.examId);
         const totalMarks = studentMarks.reduce((sum, mark) => sum + mark.score, 0);
-        const average = studentMarks.length > 0 ? (totalMarks / (studentMarks.length * 100) * 100) : 0;
-        return [
-            student.admissionNumber,
-            student.name,
-            totalMarks.toFixed(0),
-            average.toFixed(2),
-        ];
-    });
+        const average = studentMarks.length > 0 ? (totalMarks / studentMarks.length) : 0;
+        return {
+            admissionNumber: student.admissionNumber,
+            name: student.name,
+            totalMarks,
+            average,
+        };
+    }).sort((a,b) => b.totalMarks - a.totalMarks);
+
+    const headers = ['Rank', 'Adm No', 'Student Name', 'Total Marks', 'Average (%)', 'Grade'];
+    const rows = studentData.map((data, index) => [
+        index + 1,
+        data.admissionNumber,
+        data.name,
+        data.totalMarks.toFixed(0),
+        data.average.toFixed(2),
+        getGrade(data.average, true)
+    ]);
 
      setReportData({
         title: 'Class Performance Report',
@@ -152,30 +185,48 @@ export function ReportGenerator({
     const exam = exams.find(e => e.id === values.examId);
     if (!exam) return;
 
-    const examSubjects = [...new Set(marks.filter(m => m.examId === values.examId).map(m => m.subjectId))].map(id => subjects.find(s => s.id === id)!);
+    const examSubjects = [...new Set(marks.filter(m => m.examId === values.examId).map(m => m.subjectId))]
+        .map(id => subjects.find(s => s.id === id)!)
+        .filter(Boolean)
+        .sort((a, b) => parseInt(a.code) - parseInt(b.code));
     
-    const headers = ['Adm No', 'Name', ...examSubjects.map(s => s.name.substring(0,3).toUpperCase()), 'Total', 'Avg'];
-
-    const rows = studentList
-        .sort((a,b) => parseInt(a.admissionNumber.replace(/\D/g, '')) - parseInt(b.admissionNumber.replace(/\D/g, '')))
-        .map(student => {
-            const studentMarks = marks.filter(m => m.studentId === student.id && m.examId === values.examId);
-            const totalMarks = studentMarks.reduce((sum, mark) => sum + mark.score, 0);
-            const average = studentMarks.length > 0 ? totalMarks / studentMarks.length : 0;
-            
-            const subjectScores = examSubjects.map(subj => {
-                const mark = studentMarks.find(m => m.subjectId === subj.id);
-                return mark ? mark.score : '-';
-            });
-
-            return [
-                student.admissionNumber,
-                student.name,
-                ...subjectScores,
-                totalMarks,
-                average.toFixed(2)
-            ];
+    const headers = ['Rank', 'Adm No', 'Name', ...examSubjects.map(s => s.name.substring(0,3).toUpperCase()), 'Total', 'Avg', 'Grade'];
+    
+    const studentPerformance = studentList.map(student => {
+        const studentMarks = marks.filter(m => m.studentId === student.id && m.examId === values.examId);
+        const totalMarks = studentMarks.reduce((sum, mark) => sum + mark.score, 0);
+        const average = studentMarks.length > 0 ? totalMarks / studentMarks.length : 0;
+        const grade = getGrade(average, true);
+        
+        const subjectScores = examSubjects.map(subj => {
+            const mark = studentMarks.find(m => m.subjectId === subj.id);
+            return mark ? mark.score : '-';
         });
+
+        return {
+            admissionNumber: student.admissionNumber,
+            name: student.name,
+            subjectScores,
+            totalMarks,
+            average,
+            grade
+        };
+    }).sort((a, b) => b.totalMarks - a.totalMarks);
+
+    const rows = studentPerformance.map((perf, index) => [
+        index + 1,
+        perf.admissionNumber,
+        perf.name,
+        ...perf.subjectScores,
+        perf.totalMarks,
+        perf.average.toFixed(2),
+        perf.grade
+    ]);
+
+    const gradeDistribution = studentPerformance.reduce((acc, perf) => {
+        acc[perf.grade] = (acc[perf.grade] || 0) + 1;
+        return acc;
+    }, {} as Record<string, number>);
 
     setReportData({
         title,
@@ -183,6 +234,9 @@ export function ReportGenerator({
         rows,
         meta,
         rawValues: values,
+        analysis: {
+            gradeDistribution
+        }
     });
   }
 
@@ -260,25 +314,49 @@ export function ReportGenerator({
 
   const handleDownloadPdf = () => {
     if (!reportData) return;
-    const { title, meta, headers, rows, rawValues } = reportData;
-    const doc = new jsPDF({ orientation: 'landscape' });
+    const { title, meta, headers, rows, rawValues, analysis } = reportData;
+    const doc = new jsPDF({ orientation: headers.length > 7 ? 'landscape' : 'portrait' });
     
-    doc.setFontSize(18);
-    doc.text(title, 14, 22);
+    doc.setFontSize(16);
+    doc.text("GITS HIGH", doc.internal.pageSize.getWidth() / 2, 15, { align: 'center' });
     doc.setFontSize(12);
+    doc.text(title, doc.internal.pageSize.getWidth() / 2, 22, { align: 'center' });
 
+    const metaYStart = 32;
     Object.entries(meta).forEach(([key, value], index) => {
-      doc.text(`${key}: ${value}`, 14, 32 + (index * 8));
+      doc.text(`${key}: ${value}`, 14, metaYStart + (index * 8));
     });
 
+    const tableStartY = metaYStart + (Object.keys(meta).length * 8) + 5;
+
     doc.autoTable({
-      startY: 32 + (Object.keys(meta).length * 8) + 5,
+      startY: tableStartY,
       head: [headers],
       body: rows,
       theme: 'grid',
-      headStyles: { fillColor: [22, 160, 133] },
-      styles: { fontSize: 8 },
+      headStyles: { fillColor: [41, 128, 185], textColor: 255 },
+      styles: { fontSize: headers.length > 10 ? 6 : 8, cellPadding: 1.5 },
+      didDrawPage: (data) => {
+        // Footer
+        doc.setFontSize(8);
+        doc.text('Page ' + doc.internal.pages.currentPage.pageNumber, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
+      }
     });
+
+    if (analysis) {
+        let finalY = (doc as any).lastAutoTable.finalY || tableStartY + 20;
+        doc.addPage();
+        doc.setFontSize(12);
+        doc.text("Performance Analysis", 14, 20);
+        
+        const gradeEntries = Object.entries(analysis.gradeDistribution).sort((a,b) => a[0].localeCompare(b[0]));
+        doc.autoTable({
+            startY: 25,
+            head: [['Grade', 'Number of Students']],
+            body: gradeEntries,
+            theme: 'grid'
+        });
+    }
     
     const student = rawValues.studentId ? students.find(s => s.id === rawValues.studentId) : null;
     const cls = rawValues.classId ? classes.find(c => c.id === rawValues.classId) : null;
@@ -286,9 +364,12 @@ export function ReportGenerator({
     let fileName = `${title.replace(/\s/g, '-')}.pdf`;
     if (rawValues.reportType === 'marksheet' && student && exam) {
         fileName = `Marksheet-${student.admissionNumber}-${exam.name}.pdf`;
-    } else if (rawValues.reportType === 'class_performance' && cls && exam) {
-        fileName = `ClassPerformance-${cls.name}-${exam.name}.pdf`;
+    } else if ( (rawValues.reportType === 'class_marksheet' || rawValues.reportType === 'class_performance') && cls && exam) {
+        fileName = `Report-${cls.name.replace(/\s/g, '_')}-${exam.name.replace(/\s/g, '_')}.pdf`;
+    } else if (rawValues.reportType === 'form_marksheet' && rawValues.formName && exam) {
+        fileName = `Report-${rawValues.formName.replace(/\s/g, '_')}-${exam.name.replace(/\s/g, '_')}.pdf`;
     }
+
 
     doc.save(fileName);
     toast({ title: 'Report Downloaded', description: 'Your PDF has been saved.' });
@@ -296,9 +377,15 @@ export function ReportGenerator({
   
   useEffect(() => {
     setReportData(null);
+    form.reset({
+        ...form.getValues(),
+        classId: '',
+        studentId: '',
+        formName: '',
+    });
   }, [reportType]);
 
-  const formNames = [...new Set(classes.map(c => c.name))];
+  const formNames = [...new Set(classes.map(c => c.name))].sort();
 
 
   return (
@@ -327,7 +414,6 @@ export function ReportGenerator({
                         <SelectItem value="class_performance">Class Performance</SelectItem>
                         <SelectItem value="class_marksheet">Class Marksheet</SelectItem>
                         <SelectItem value="form_marksheet">Form Marksheet</SelectItem>
-                        <SelectItem value="subject_analysis">Subject Analysis</SelectItem>
                         </SelectContent>
                     </Select>
                     <FormMessage />
@@ -364,14 +450,14 @@ export function ReportGenerator({
                     render={({ field }) => (
                         <FormItem>
                         <FormLabel>Class (Optional)</FormLabel>
-                        <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <Select onValueChange={(val) => { field.onChange(val); form.setValue('studentId', ''); }} defaultValue={field.value}>
                             <FormControl>
                             <SelectTrigger><SelectValue placeholder="Filter by class" /></SelectTrigger>
                             </FormControl>
                             <SelectContent>
                             <SelectItem value="all">All Classes</SelectItem>
                             {classes.map((c) => (
-                                <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+                                <SelectItem key={c.id} value={c.id}>{c.name} {c.stream || ''}</SelectItem>
                             ))}
                             </SelectContent>
                         </Select>
@@ -460,16 +546,16 @@ export function ReportGenerator({
 
     {reportData && (
         <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-row items-start justify-between">
                 <div>
                     <CardTitle>{reportData.title}</CardTitle>
-                    <CardDescription>
+                    <div className="flex flex-wrap gap-x-4 gap-y-1 mt-2">
                         {Object.entries(reportData.meta).map(([key, value]) => (
-                            <span key={key} className="mr-4 text-sm text-muted-foreground"><b>{key}:</b> {value}</span>
+                            <span key={key} className="text-sm text-muted-foreground"><b>{key}:</b> {value}</span>
                         ))}
-                    </CardDescription>
+                    </div>
                 </div>
-                <Button onClick={handleDownloadPdf} variant="outline">
+                <Button onClick={handleDownloadPdf} variant="outline" size="sm">
                     <Download className="mr-2 h-4 w-4" /> Download PDF
                 </Button>
             </CardHeader>
@@ -485,13 +571,28 @@ export function ReportGenerator({
                             {reportData.rows.map((row, rowIndex) => (
                                 <TableRow key={rowIndex}>
                                     {row.map((cell, cellIndex) => (
-                                        <TableCell key={cellIndex}>{cell}</TableCell>
+                                        <TableCell key={cellIndex} className={cellIndex === 0 ? 'font-bold' : ''}>{cell}</TableCell>
                                     ))}
                                 </TableRow>
                             ))}
                         </TableBody>
                     </Table>
                 </div>
+                {reportData.analysis && (
+                    <div className="mt-6">
+                        <h3 className="text-lg font-semibold mb-2">Performance Analysis</h3>
+                        <div className="flex flex-wrap gap-4">
+                        {Object.entries(reportData.analysis.gradeDistribution).sort((a,b) => a[0].localeCompare(b[0])).map(([grade, count]) => (
+                            <div key={grade} className="flex items-center gap-2 rounded-md border p-3">
+                                <span className="font-bold text-2xl text-primary">{grade}</span>
+                                <div>
+                                    <div className="font-semibold">{count} Student{Number(count) > 1 ? 's' : ''}</div>
+                                </div>
+                            </div>
+                        ))}
+                        </div>
+                    </div>
+                )}
             </CardContent>
         </Card>
     )}
