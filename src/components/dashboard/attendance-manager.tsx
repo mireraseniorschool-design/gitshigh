@@ -4,7 +4,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import type { Student, Attendance } from '@/lib/types';
-import { format, parse } from 'date-fns';
+import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
+import { Form, FormField, FormItem } from '@/components/ui/form';
 
 const attendanceSchema = z.object({
   studentId: z.string(),
@@ -89,6 +90,7 @@ export function AttendanceManager({
   }
 
   return (
+    <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
       <div className="flex items-center gap-4">
         <FormField
@@ -165,6 +167,6 @@ export function AttendanceManager({
         ) : 'Save Attendance'}
       </Button>
     </form>
+    </Form>
   );
 }
-
