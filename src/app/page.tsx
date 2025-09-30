@@ -1,3 +1,4 @@
+
 'use client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -12,21 +13,34 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import { GraduationCap } from 'lucide-react';
+import { GraduationCap, ArrowLeft } from 'lucide-react';
 import { users } from '@/lib/data';
+import type { UserRole } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
+  const [selectedRole, setSelectedRole] = useState<UserRole | null>(null);
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const router = useRouter();
   const { toast } = useToast();
 
+  const handleRoleSelect = (role: UserRole) => {
+    setSelectedRole(role);
+    setError('');
+    setPassword('');
+  };
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    const user = users.find((u) => u.email.toLowerCase() === email.toLowerCase());
+    if (!selectedRole) {
+        setError('Something went wrong. Please go back and select your role.');
+        return;
+    }
+
+    const user = users.find((u) => u.role === selectedRole);
 
     if (user && password === '123456') {
       toast({
@@ -35,14 +49,22 @@ export default function LoginPage() {
       });
       router.push(`/${user.role.toLowerCase()}`);
     } else {
-      setError('Invalid email or password.');
+      setError('Invalid password.');
       toast({
         variant: 'destructive',
         title: 'Login Failed',
-        description: 'Invalid email or password.',
+        description: 'Invalid password.',
       });
     }
   };
+
+  const handleGoBack = () => {
+    setSelectedRole(null);
+    setError('');
+    setPassword('');
+  }
+
+  const roles: UserRole[] = ['Admin', 'Dean', 'Teacher', 'Accountant'];
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-background p-4">
@@ -60,51 +82,58 @@ export default function LoginPage() {
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader>
           <CardTitle className="font-headline text-center text-2xl">
-            Sign In
+            {selectedRole ? `Sign In as ${selectedRole}` : 'Select Your Role'}
           </CardTitle>
           <CardDescription className="text-center">
-            Enter your credentials to access your dashboard.
+            {selectedRole ? 'Enter your password to continue.' : 'Choose your user profile to get started.'}
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <form onSubmit={handleLogin} className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                placeholder="user@mirera.ac.ke"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-              />
+          {!selectedRole ? (
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {roles.map((role) => (
+                <Button
+                  key={role}
+                  variant="outline"
+                  className="h-24 text-lg font-semibold"
+                  onClick={() => handleRoleSelect(role)}
+                >
+                  {role.toUpperCase()}
+                </Button>
+              ))}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
-              <Input
-                id="password"
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-              />
-            </div>
-            {error && (
-                <p className="text-sm font-medium text-destructive">{error}</p>
-            )}
-            <Button type="submit" className="w-full">
-              Login
-            </Button>
-          </form>
+          ) : (
+            <form onSubmit={handleLogin} className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  type="password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  autoFocus
+                />
+              </div>
+              {error && (
+                  <p className="text-sm font-medium text-destructive">{error}</p>
+              )}
+              <div className="flex flex-col gap-2">
+                <Button type="submit" className="w-full">
+                  Login
+                </Button>
+                <Button variant="ghost" className="w-full" onClick={handleGoBack}>
+                    <ArrowLeft className="mr-2 h-4 w-4" />
+                    Go Back
+                </Button>
+              </div>
+            </form>
+          )}
         </CardContent>
       </Card>
-       <div className="mt-4 text-sm text-muted-foreground">
-          <p>Use one of the following emails to log in:</p>
-          <ul className="mt-2 list-disc list-inside text-xs">
-            {users.map(u => <li key={u.id}>{u.email} ({u.role})</li>)}
-          </ul>
-          <p className="mt-2">The password for all users is: <span className="font-mono font-bold">123456</span></p>
-        </div>
+      <div className={cn("mt-4 text-sm text-muted-foreground transition-opacity", selectedRole ? 'opacity-0' : 'opacity-100')}>
+          <p>The password for all users is: <span className="font-mono font-bold">123456</span></p>
+      </div>
       <footer className="mt-8 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Mirera High School. All rights reserved.</p>
       </footer>
