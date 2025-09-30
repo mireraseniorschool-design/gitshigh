@@ -131,9 +131,7 @@ export default function LoginPage() {
           )}
         </CardContent>
       </Card>
-      <div className={cn("mt-4 text-sm text-muted-foreground transition-opacity", selectedRole ? 'opacity-0' : 'opacity-100')}>
-          <p>The password for all users is: <span className="font-mono font-bold">123456</span></p>
-      </div>
+      
       <footer className="mt-8 text-center text-sm text-muted-foreground">
         <p>&copy; {new Date().getFullYear()} Mirera High School. All rights reserved.</p>
       </footer>
