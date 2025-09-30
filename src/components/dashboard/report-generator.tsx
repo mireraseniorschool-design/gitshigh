@@ -251,7 +251,7 @@ export function ReportGenerator({
     const exam = exams.find(e => e.id === values.examId);
     if (!cls || !exam) return;
 
-    const classStudents = students.filter(s => s.classId === values.classId).sort((a,b) => parseInt(a.admissionNumber) - parseInt(b.admissionNumber));
+    const classStudents = students.filter(s => s.classId === values.classId).sort((a, b) => parseInt(a.admissionNumber) - parseInt(b.admissionNumber));
     
     generateDetailedMarksheet(
         classStudents,
@@ -318,7 +318,6 @@ export function ReportGenerator({
     if (!reportData) return;
     
     const { jsPDF } = await import('jspdf');
-    // You need to import the autoTable plugin separately
     await import('jspdf-autotable');
 
     const { title, meta, headers, rows, rawValues, analysis } = reportData;
@@ -346,7 +345,8 @@ export function ReportGenerator({
       didDrawPage: (data) => {
         // Footer
         doc.setFontSize(8);
-        doc.text('Page ' + doc.internal.pages.currentPage.pageNumber, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
+        const pageCount = doc.internal.getNumberOfPages();
+        doc.text('Page ' + pageCount, data.settings.margin.left, doc.internal.pageSize.getHeight() - 10);
       }
     });
 
