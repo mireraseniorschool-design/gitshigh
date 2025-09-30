@@ -50,10 +50,8 @@ const deanLinks = [
 ];
 
 const teacherLinks = [
-  { href: '/teacher', label: 'My Dashboard', icon: LayoutDashboard },
-  { href: '/teacher/attendance', label: 'Attendance', icon: ClipboardCheck },
+  { href: '/teacher', label: 'Attendance', icon: ClipboardCheck },
   { href: '/teacher/marks', label: 'Enter Marks', icon: PenSquare },
-  { href: '/teacher/reports', label: 'AI Reports', icon: Bot },
 ];
 
 const accountantLinks = [
