@@ -107,7 +107,7 @@ export function DashboardSidebar() {
         <SidebarMenu>
           {links.map((link) => (
             <SidebarMenuItem key={link.href}>
-              <Link href={link.href} legacyBehavior passHref>
+              <Link href={link.href}>
                 <SidebarMenuButton
                   isActive={pathname === link.href || (link.href !== `/${role}` && pathname.startsWith(link.href))}
                   className={cn(
@@ -128,7 +128,7 @@ export function DashboardSidebar() {
       </SidebarContent>
       <SidebarFooter className="p-2">
         <Separator className="my-2 bg-sidebar-border" />
-         <Link href="/" legacyBehavior passHref>
+         <Link href="/">
             <Button variant="ghost" className="w-full justify-start gap-2 text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground">
                 <LogOut className="h-4 w-4" />
                 <span>Logout</span>
