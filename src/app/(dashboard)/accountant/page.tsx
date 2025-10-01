@@ -12,7 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { FileText, Banknote, Landmark, Scale, ArrowRight, Users, Book } from 'lucide-react';
+import { FileText, Banknote, Landmark, Scale, ArrowRight, Users, Book, List } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import type { Fee, Student, Payment, Class } from '@/lib/types';
