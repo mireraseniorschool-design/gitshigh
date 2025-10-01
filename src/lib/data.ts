@@ -1,55 +1,54 @@
 import type { Student, Teacher, Class, Subject, Fee, User, Mark, Exam, Attendance, Payment } from './types';
-import { placeholderImages } from './placeholder-images.json';
 
 export const users: User[] = [
-  { id: 'user-1', name: 'Admin User', email: 'admin@gits.ac.ke', role: 'Admin', avatarUrl: placeholderImages[0].imageUrl },
-  { id: 'user-2', name: 'Dean User', email: 'dean@gits.ac.ke', role: 'Dean', avatarUrl: placeholderImages[1].imageUrl },
-  { id: 'user-3', name: 'Teacher User', email: 'teacher@gits.ac.ke', role: 'Teacher', avatarUrl: placeholderImages[2].imageUrl },
-  { id: 'user-4', name: 'Accountant User', email: 'accountant@gits.ac.ke', role: 'Accountant', avatarUrl: placeholderImages[3].imageUrl },
+  { id: 'user-1', name: 'Admin User', email: 'admin@gits.ac.ke', role: 'Admin', avatarUrl: '' },
+  { id: 'user-2', name: 'Dean User', email: 'dean@gits.ac.ke', role: 'Dean', avatarUrl: '' },
+  { id: 'user-3', name: 'Teacher User', email: 'teacher@gits.ac.ke', role: 'Teacher', avatarUrl: '' },
+  { id: 'user-4', name: 'Accountant User', email: 'accountant@gits.ac.ke', role: 'Accountant', avatarUrl: '' },
 ];
 
 export const students: Student[] = [
-  { id: 'std-1', admissionNumber: '3972', name: 'Alice Johnson', classId: 'cls-1', guardianName: 'John Johnson', guardianPhone: '0712345678', avatarUrl: placeholderImages[4].imageUrl, dateOfBirth: '2008-05-10' },
-  { id: 'std-2', admissionNumber: '3973', name: 'Bob Williams', classId: 'cls-1', guardianName: 'Jane Williams', guardianPhone: '0723456789', avatarUrl: placeholderImages[5].imageUrl, dateOfBirth: '2008-03-15' },
-  { id: 'std-3', admissionNumber: '3974', name: 'Charlie Brown', classId: 'cls-2', guardianName: 'Chris Brown', guardianPhone: '0734567890', avatarUrl: placeholderImages[6].imageUrl, dateOfBirth: '2007-11-20' },
-  { id: 'std-4', admissionNumber: '3975', name: 'Diana Miller', classId: 'cls-3', guardianName: 'David Miller', guardianPhone: '0745678901', avatarUrl: placeholderImages[7].imageUrl, dateOfBirth: '2009-01-30' },
-  { id: 'std-5', admissionNumber: '3976', name: 'Ethan Davis', classId: 'cls-2', guardianName: 'Emily Davis', guardianPhone: '0756789012', avatarUrl: placeholderImages[8].imageUrl, dateOfBirth: '2007-09-05' },
-  { "id": "std-4710", "admissionNumber": "4710", "name": "NJAMBI CLEMENCY GIFT", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4710/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4717", "admissionNumber": "4717", "name": "LUSIRE ELIZABETH NJOKI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4717/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4496", "admissionNumber": "4496", "name": "KASHU TERESIA NAIRESIAE", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4496/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4894", "admissionNumber": "4894", "name": "BIYOKI FAITH NYABOKE", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4894/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4699", "admissionNumber": "4699", "name": "OGETO MARKLINE MORAA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4699/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4906", "admissionNumber": "4906", "name": "INDUVIRU PRUDENCE ADAMBA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4906/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4935", "admissionNumber": "4935", "name": "KORIR MERCY CHELANGAT", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4935/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4497", "admissionNumber": "4497", "name": "KALIBO IVY NALIAKA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4497/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-5121", "admissionNumber": "5121", "name": "KARIUKI MORGAN MAINA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/5121/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4718", "admissionNumber": "4718", "name": "NDUTA PURITY NYOKABI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4718/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4742", "admissionNumber": "4742", "name": "NDUNGU STANLEY NGANGA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4742/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-5136", "admissionNumber": "5136", "name": "KIMANI DERRICK WAWERU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/5136/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-6247", "admissionNumber": "6247", "name": "MARION KERUBO", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/6247/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4814", "admissionNumber": "4814", "name": "OMBATI AGNA MORAA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4814/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-6301", "admissionNumber": "6301", "name": "KAMAU ASHLEY WANGECHI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/6301/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4758", "admissionNumber": "4758", "name": "NJOROGE ANTHONEY GIKONYO", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4758/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-5845", "admissionNumber": "5845", "name": "FAITH NJERI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/5845/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-5018", "admissionNumber": "5018", "name": "MUSYOKA HANNAH KANINI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/5018/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4747", "admissionNumber": "4747", "name": "WANJIRU MARGARET NJERI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4747/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-5647", "admissionNumber": "5647", "name": "Timothy Mulinge", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/5647/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4793", "admissionNumber": "4793", "name": "MMBOKA DANIEL MWITA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4793/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4858", "admissionNumber": "4858", "name": "GITAU VIRGINIA WANJIRU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4858/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-3977", "admissionNumber": "3977", "name": "EKITELA MUSA LOCHOK", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/3977/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-6274", "admissionNumber": "6274", "name": "Nyamboke Happy", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/6274/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4697", "admissionNumber": "4697", "name": "KIMANI STEVE MBURU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4697/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4768", "admissionNumber": "4768", "name": "NJUGUNA MARY WANGUI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4768/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4745", "admissionNumber": "4745", "name": "LODIAKA RUTH LOWOTHA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4745/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-5125", "admissionNumber": "5125", "name": "NDILA AMOS KIVUVA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/5125/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4755", "admissionNumber": "4755", "name": "IREGI FRANCISCA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4755/200/300", "dateOfBirth": "2009-01-01" },
-  { "id": "std-4812", "admissionNumber": "4812", "name": "MACHARIA COSMAS NDUNGU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4812/200/300", "dateOfBirth": "2009-01-01" }
+  { id: 'std-3972', admissionNumber: '3972', name: 'Alice Johnson', classId: 'cls-1', guardianName: 'John Johnson', guardianPhone: '0712345678', avatarUrl: '', dateOfBirth: '2008-05-10' },
+  { id: 'std-3973', admissionNumber: '3973', name: 'Bob Williams', classId: 'cls-1', guardianName: 'Jane Williams', guardianPhone: '0723456789', avatarUrl: '', dateOfBirth: '2008-03-15' },
+  { id: 'std-3974', admissionNumber: '3974', name: 'Charlie Brown', classId: 'cls-2', guardianName: 'Chris Brown', guardianPhone: '0734567890', avatarUrl: '', dateOfBirth: '2007-11-20' },
+  { id: 'std-3975', admissionNumber: '3975', name: 'Diana Miller', classId: 'cls-3', guardianName: 'David Miller', guardianPhone: '0745678901', avatarUrl: '', dateOfBirth: '2009-01-30' },
+  { id: 'std-3976', admissionNumber: '3976', name: 'Ethan Davis', classId: 'cls-2', guardianName: 'Emily Davis', guardianPhone: '0756789012', avatarUrl: '', dateOfBirth: '2007-09-05' },
+  { "id": "std-4710", "admissionNumber": "4710", "name": "NJAMBI CLEMENCY GIFT", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4717", "admissionNumber": "4717", "name": "LUSIRE ELIZABETH NJOKI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4496", "admissionNumber": "4496", "name": "KASHU TERESIA NAIRESIAE", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4894", "admissionNumber": "4894", "name": "BIYOKI FAITH NYABOKE", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4699", "admissionNumber": "4699", "name": "OGETO MARKLINE MORAA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4906", "admissionNumber": "4906", "name": "INDUVIRU PRUDENCE ADAMBA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4935", "admissionNumber": "4935", "name": "KORIR MERCY CHELANGAT", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4497", "admissionNumber": "4497", "name": "KALIBO IVY NALIAKA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-5121", "admissionNumber": "5121", "name": "KARIUKI MORGAN MAINA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4718", "admissionNumber": "4718", "name": "NDUTA PURITY NYOKABI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4742", "admissionNumber": "4742", "name": "NDUNGU STANLEY NGANGA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-5136", "admissionNumber": "5136", "name": "KIMANI DERRICK WAWERU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-6247", "admissionNumber": "6247", "name": "MARION KERUBO", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4814", "admissionNumber": "4814", "name": "OMBATI AGNA MORAA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-6301", "admissionNumber": "6301", "name": "KAMAU ASHLEY WANGECHI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4758", "admissionNumber": "4758", "name": "NJOROGE ANTHONEY GIKONYO", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-5845", "admissionNumber": "5845", "name": "FAITH NJERI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-5018", "admissionNumber": "5018", "name": "MUSYOKA HANNAH KANINI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4747", "admissionNumber": "4747", "name": "WANJIRU MARGARET NJERI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-5647", "admissionNumber": "5647", "name": "Timothy Mulinge", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4793", "admissionNumber": "4793", "name": "MMBOKA DANIEL MWITA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4858", "admissionNumber": "4858", "name": "GITAU VIRGINIA WANJIRU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-3977", "admissionNumber": "3977", "name": "EKITELA MUSA LOCHOK", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-6274", "admissionNumber": "6274", "name": "Nyamboke Happy", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4697", "admissionNumber": "4697", "name": "KIMANI STEVE MBURU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4768", "admissionNumber": "4768", "name": "NJUGUNA MARY WANGUI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4745", "admissionNumber": "4745", "name": "LODIAKA RUTH LOWOTHA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-5125", "admissionNumber": "5125", "name": "NDILA AMOS KIVUVA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4755", "admissionNumber": "4755", "name": "IREGI FRANCISCA", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" },
+  { "id": "std-4812", "admissionNumber": "4812", "name": "MACHARIA COSMAS NDUNGU", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "", "dateOfBirth": "2009-01-01" }
 ];
 
 export const teachers: Teacher[] = [
-  { id: 'tch-1', staffId: 'TS-01', name: 'Mr. Peter Jones', subjectIds: ['sub-1', 'sub-2'], email: 'peter.jones@gits.ac.ke', phone: '0701234567', avatarUrl: placeholderImages[9].imageUrl },
-  { id: 'tch-2', staffId: 'TS-02', name: 'Ms. Susan White', subjectIds: ['sub-3', 'sub-4'], email: 'susan.white@gits.ac.ke', phone: '0702345678', avatarUrl: placeholderImages[10].imageUrl },
-  { id: 'tch-3', staffId: 'TS-03', name: 'Mr. Ken Omondi', subjectIds: ['sub-5', 'sub-6'], email: 'ken.omondi@gits.ac.ke', phone: '0703456789', avatarUrl: placeholderImages[11].imageUrl },
+  { id: 'tch-1', staffId: 'TS-01', name: 'Mr. Peter Jones', subjectIds: ['sub-1', 'sub-2'], email: 'peter.jones@gits.ac.ke', phone: '0701234567', avatarUrl: '' },
+  { id: 'tch-2', staffId: 'TS-02', name: 'Ms. Susan White', subjectIds: ['sub-3', 'sub-4'], email: 'susan.white@gits.ac.ke', phone: '0702345678', avatarUrl: '' },
+  { id: 'tch-3', staffId: 'TS-03', name: 'Mr. Ken Omondi', subjectIds: ['sub-5', 'sub-6'], email: 'ken.omondi@gits.ac.ke', phone: '0703456789', avatarUrl: '' },
 ];
 
 export const classes: Class[] = [
@@ -58,7 +57,6 @@ export const classes: Class[] = [
   { id: 'cls-2', name: 'Form 2', stream: 'B', classTeacherId: 'tch-2' },
   { id: 'cls-3', name: 'Form 3', stream: 'C', classTeacherId: 'tch-3' },
   { id: 'cls-4', name: 'Form 4', stream: 'Blue', classTeacherId: 'tch-1' },
-  { id: 'cls-6', name: 'Form 1', stream: 'B', classTeacherId: 'tch-2' },
 ];
 
 export const subjects: Subject[] = [
@@ -87,12 +85,12 @@ export const exams: Exam[] = [
 ];
 
 export const marks: Mark[] = [
-  { studentId: 'std-1', subjectId: 'sub-1', examId: 'exam-1', score: 78 },
-  { studentId: 'std-1', subjectId: 'sub-2', examId: 'exam-1', score: 82 },
-  { studentId: 'std-1', subjectId: 'sub-3', examId: 'exam-1', score: 75 },
-  { studentId: 'std-2', subjectId: 'sub-1', examId: 'exam-1', score: 65 },
-  { studentId: 'std-2', subjectId: 'sub-2', examId: 'exam-1', score: 71 },
-  { studentId: 'std-2', subjectId: 'sub-3', examId: 'exam-1', score: 68 },
+  { studentId: 'std-3972', subjectId: 'sub-1', examId: 'exam-1', score: 78 },
+  { studentId: 'std-3972', subjectId: 'sub-2', examId: 'exam-1', score: 82 },
+  { studentId: 'std-3972', subjectId: 'sub-3', examId: 'exam-1', score: 75 },
+  { studentId: 'std-3973', subjectId: 'sub-1', examId: 'exam-1', score: 65 },
+  { studentId: 'std-3973', subjectId: 'sub-2', examId: 'exam-1', score: 71 },
+  { studentId: 'std-3973', subjectId: 'sub-3', examId: 'exam-1', score: 68 },
   { "studentId": "std-4710", "examId": "exam-4", "subjectId": "sub-2", "score": 82 },
   { "studentId": "std-4710", "examId": "exam-4", "subjectId": "sub-3", "score": 86 },
   { "studentId": "std-4710", "examId": "exam-4", "subjectId": "sub-1", "score": 86 },
@@ -305,10 +303,11 @@ export const marks: Mark[] = [
 ];
 
 export const fees: Fee[] = [
-  { invoiceId: 'inv-001', studentId: 'std-1', amount: 50000, dueDate: '2024-09-01', paidAmount: 50000, balance: 0, status: 'Paid' },
-  { invoiceId: 'inv-002', studentId: 'std-2', amount: 50000, dueDate: '2024-09-01', paidAmount: 25000, balance: 25000, status: 'Partial' },
-  { invoiceId: 'inv-003', studentId: 'std-3', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
-  { invoiceId: 'inv-004', studentId: 'std-4', amount: 48000, dueDate: '2024-09-01', paidAmount: 48000, balance: 0, status: 'Paid' },
+  { invoiceId: 'inv-001', studentId: 'std-3972', amount: 50000, dueDate: '2024-09-01', paidAmount: 50000, balance: 0, status: 'Paid' },
+  { invoiceId: 'inv-002', studentId: 'std-3973', amount: 50000, dueDate: '2024-09-01', paidAmount: 25000, balance: 25000, status: 'Partial' },
+  { invoiceId: 'inv-003', studentId: 'std-3974', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
+  { invoiceId: 'inv-004', studentId: 'std-3975', amount: 48000, dueDate: '2024-09-01', paidAmount: 48000, balance: 0, status: 'Paid' },
+  { invoiceId: 'inv-005', studentId: 'std-3976', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
   { invoiceId: 'inv-4710', studentId: 'std-4710', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
   { invoiceId: 'inv-4717', studentId: 'std-4717', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
   { invoiceId: 'inv-4496', studentId: 'std-4496', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
@@ -342,19 +341,21 @@ export const fees: Fee[] = [
 ];
 
 export const attendance: Attendance[] = [
-    { studentId: 'std-1', date: '2024-07-28', status: 'Present' },
-    { studentId: 'std-2', date: '2024-07-28', status: 'Absent' },
-    { studentId: 'std-1', date: '2024-07-29', status: 'Present' },
-    { studentId: 'std-2', date: '2024-07-29', status: 'Present' },
+    { studentId: 'std-3972', date: '2024-07-28', status: 'Present' },
+    { studentId: 'std-3973', date: '2024-07-28', status: 'Absent' },
+    { studentId: 'std-3972', date: '2024-07-29', status: 'Present' },
+    { studentId: 'std-3973', date: '2024-07-29', status: 'Present' },
 ];
 
 export const payments: Payment[] = [
-    { paymentId: 'pay-1', studentId: 'std-1', invoiceId: 'inv-001', amount: 25000, date: '2024-07-20T10:00:00Z' },
-    { paymentId: 'pay-2', studentId: 'std-1', invoiceId: 'inv-001', amount: 25000, date: '2024-08-15T14:30:00Z' },
-    { paymentId: 'pay-3', studentId: 'std-2', invoiceId: 'inv-002', amount: 25000, date: '2024-08-01T09:00:00Z' },
-    { paymentId: 'pay-4', studentId: 'std-4', invoiceId: 'inv-004', amount: 48000, date: '2024-07-25T11:00:00Z' },
+    { paymentId: 'pay-1', studentId: 'std-3972', invoiceId: 'inv-001', amount: 25000, date: '2024-07-20T10:00:00Z' },
+    { paymentId: 'pay-2', studentId: 'std-3972', invoiceId: 'inv-001', amount: 25000, date: '2024-08-15T14:30:00Z' },
+    { paymentId: 'pay-3', studentId: 'std-3973', invoiceId: 'inv-002', amount: 25000, date: '2024-08-01T09:00:00Z' },
+    { paymentId: 'pay-4', studentId: 'std-3975', invoiceId: 'inv-004', amount: 48000, date: '2024-07-25T11:00:00Z' },
 ];
 
     
 
     
+
+

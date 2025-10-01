@@ -38,7 +38,7 @@ export default async function AddTeacherPage() {
             const teacherRef = doc(db, 'teachers', teacherId);
             await setDoc(teacherRef, {
                 id: teacherId,
-                avatarUrl: `https://picsum.photos/seed/${data.staffId}/200/300`,
+                avatarUrl: '',
                 ...data
             });
 

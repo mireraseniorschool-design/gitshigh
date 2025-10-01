@@ -39,7 +39,7 @@ export default async function AddStudentPage() {
             const studentRef = doc(db, 'students', studentId);
             await setDoc(studentRef, {
                 id: studentId,
-                avatarUrl: `https://picsum.photos/seed/${data.admissionNumber}/200/300`,
+                avatarUrl: '',
                 ...data
             });
 
