@@ -355,7 +355,4 @@ export const payments: Payment[] = [
     { paymentId: 'pay-4', studentId: 'std-4', invoiceId: 'inv-004', amount: 48000, date: '2024-07-25T11:00:00Z' },
 ];
 
-
-
-
-
+    
