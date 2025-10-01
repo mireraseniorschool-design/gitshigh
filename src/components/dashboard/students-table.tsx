@@ -19,14 +19,12 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import Link from 'next/link';
 
-// Extends Student with an optional className
 interface StudentWithClass extends Student {
     className?: string;
 }
 
-export function StudentsTable({ students, basePath = "/admin/students" }: { students: StudentWithClass[], basePath?: string }) {
+export function StudentsTable({ students, onEdit }: { students: StudentWithClass[], onEdit: (student: Student) => void }) {
   return (
     <Table>
       <TableHeader>
@@ -57,8 +55,8 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem asChild>
-                    <Link href={`${basePath}/${student.id}/edit`}>Edit</Link>
+                  <DropdownMenuItem onSelect={() => onEdit(student)}>
+                    Edit
                   </DropdownMenuItem>
                   <DropdownMenuItem>View Details</DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
