@@ -34,45 +34,17 @@ type ServerActionData = {
     guardianPhone?: string;
 }
 
-async function handleUpdateStudent(studentId: string, data: ServerActionData) {
-    'use server';
-    try {
-        const studentRef = doc(db, 'students', studentId);
-        await updateDoc(studentRef, { 
-            name: data.name,
-            classId: data.classId,
-            dateOfBirth: data.dateOfBirth,
-            guardianName: data.guardianName,
-            guardianPhone: data.guardianPhone,
-        });
-
-        const studentSubjectsRef = collection(db, 'students', studentId, 'subjects');
-        const existingSubjectsSnapshot = await getDocs(studentSubjectsRef);
-        const existingSubjectIds = new Set(existingSubjectsSnapshot.docs.map(d => d.id));
-        const newSubjectIds = new Set(data.subjectIds);
-
-        for (const subjectId of data.subjectIds) {
-            if (!existingSubjectIds.has(subjectId)) {
-                await setDoc(doc(studentSubjectsRef, subjectId), { enrolled: true });
-            }
-        }
-
-        for (const subDoc of existingSubjectsSnapshot.docs) {
-            if (!newSubjectIds.has(subDoc.id)) {
-                await updateDoc(subDoc.ref, { enrolled: false });
-            }
-        }
-
-        return { success: true, message: "Student updated successfully!"};
-    } catch (error) {
-        console.error("Failed to update student:", error);
-        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
-        return { success: false, message: `Failed to update student: ${errorMessage}` };
-    }
-}
-
-
-function StudentListClient({ students: initialStudents, classes, subjects }: { students: Student[], classes: Class[], subjects: Subject[] }) {
+function StudentListClient({ 
+  students: initialStudents, 
+  classes, 
+  subjects,
+  handleUpdateStudent
+}: { 
+  students: Student[], 
+  classes: Class[], 
+  subjects: Subject[],
+  handleUpdateStudent: (studentId: string, data: ServerActionData) => Promise<{ success: boolean, message?: string }>
+}) {
   const [searchTerm, setSearchTerm] = React.useState('');
   const [editingStudent, setEditingStudent] = React.useState<Student | null>(null);
   const [studentSubjects, setStudentSubjects] = React.useState<string[]>([]);
@@ -83,7 +55,7 @@ function StudentListClient({ students: initialStudents, classes, subjects }: { s
     try {
         const studentSubjectsCol = collection(db, 'students', student.id, 'subjects');
         const studentSubjectDocs = await getDocs(studentSubjectsCol);
-        const subjectIds = studentSubjectDocs.docs.map(doc => doc.id);
+        const subjectIds = studentSubjectDocs.docs.filter(doc => doc.data().enrolled).map(doc => doc.id);
         setStudentSubjects(subjectIds);
         setEditingStudent(student);
         setIsModalOpen(true);
@@ -192,6 +164,7 @@ function StudentListClient({ students: initialStudents, classes, subjects }: { s
   );
 }
 
+
 export default function AdminStudentsPage() {
   const [students, setStudents] = React.useState<Student[]>([]);
   const [classes, setClasses] = React.useState<Class[]>([]);
@@ -221,9 +194,46 @@ export default function AdminStudentsPage() {
     }
     getData();
   }, []);
+  
+  async function handleUpdateStudent(studentId: string, data: ServerActionData) {
+    'use server';
+    try {
+        const studentRef = doc(db, 'students', studentId);
+        await updateDoc(studentRef, { 
+            name: data.name,
+            classId: data.classId,
+            dateOfBirth: data.dateOfBirth,
+            guardianName: data.guardianName,
+            guardianPhone: data.guardianPhone,
+        });
+
+        const studentSubjectsRef = collection(db, 'students', studentId, 'subjects');
+        const existingSubjectsSnapshot = await getDocs(studentSubjectsRef);
+        const newSubjectIds = new Set(data.subjectIds);
+
+        // Add or update subjects
+        for (const subjectId of data.subjectIds) {
+            const subDocRef = doc(studentSubjectsRef, subjectId);
+            await setDoc(subDocRef, { enrolled: true });
+        }
+
+        // Unenroll from subjects that were removed
+        for (const subDoc of existingSubjectsSnapshot.docs) {
+            if (!newSubjectIds.has(subDoc.id)) {
+                await updateDoc(subDoc.ref, { enrolled: false });
+            }
+        }
+        
+        return { success: true, message: "Student updated successfully!"};
+    } catch (error) {
+        console.error("Failed to update student:", error);
+        const errorMessage = error instanceof Error ? error.message : "An unknown error occurred.";
+        return { success: false, message: `Failed to update student: ${errorMessage}` };
+    }
+  }
 
   if (loading) {
-    return (
+     return (
         <div className="space-y-6">
             <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
             <Card>
@@ -239,5 +249,6 @@ export default function AdminStudentsPage() {
     );
   }
 
-  return <StudentListClient students={students} classes={classes} subjects={subjects} />;
+
+  return <StudentListClient students={students} classes={classes} subjects={subjects} handleUpdateStudent={handleUpdateStudent} />;
 }
