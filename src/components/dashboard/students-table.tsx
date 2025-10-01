@@ -55,7 +55,7 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
             <TableCell className="font-medium">{student.name}</TableCell>
             <TableCell>{student.admissionNumber}</TableCell>
             <TableCell className="hidden md:table-cell">
-              {student.className || student.classId}
+              {student.className}
             </TableCell>
             <TableCell className="hidden md:table-cell">
               {student.guardianName}

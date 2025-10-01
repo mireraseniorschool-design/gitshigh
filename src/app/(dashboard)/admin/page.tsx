@@ -46,6 +46,15 @@ export default async function AdminPage() {
   const totalClasses = classes.length;
   const totalFeesDue = fees.reduce((acc, fee) => acc + fee.balance, 0);
 
+  const studentsWithClass = students.slice(0, 5).map(student => {
+    const studentClass = classes.find(c => c.id === student.classId);
+    const className = studentClass ? `${studentClass.name} ${studentClass.stream}`.trim() : 'N/A';
+    return {
+        ...student,
+        className: className
+    }
+  })
+
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Admin Overview</h1>
@@ -117,7 +126,7 @@ export default async function AdminPage() {
                 </div>
               </CardHeader>
               <CardContent>
-                <StudentsTable students={students.slice(0, 5)} />
+                <StudentsTable students={studentsWithClass} />
                  <p className="text-sm text-muted-foreground mt-4">Showing first 5 students. Go to the student management page to see all.</p>
               </CardContent>
             </Card>
