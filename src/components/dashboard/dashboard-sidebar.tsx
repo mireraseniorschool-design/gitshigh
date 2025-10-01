@@ -27,6 +27,7 @@ import {
   Cog,
   Bot,
   Edit,
+  Scale
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -47,8 +48,6 @@ const deanLinks = [
     { href: '/dean/students', label: 'Students', icon: Users },
     { href: '/dean/teachers', label: 'Teachers', icon: User },
     { href: '/dean/classes', label: 'Classes', icon: Book },
-    { href: '/dean/exams', label: 'Exams & Marks', icon: GraduationCap },
-    { href: '/dean/analysis', label: 'Analysis', icon: Presentation },
 ];
 
 const teacherLinks = [
@@ -59,12 +58,11 @@ const teacherLinks = [
 
 const accountantLinks = [
     { href: '/accountant', label: 'Finance', icon: LayoutDashboard },
-    { href: '/accountant/students', label: 'Students', icon: Users },
-    { href: '/accountant/teachers', label: 'Teachers', icon: User },
-    { href: '/accountant/classes', label: 'Classes', icon: Book },
     { href: '/accountant/invoices', label: 'Invoices', icon: FileText },
     { href: '/accountant/payments', label: 'Payments', icon: Banknote },
-    { href: '/accountant/balances', label: 'Fee Balances', icon: Presentation },
+    { href: '/accountant/balances', label: 'Fee Balances', icon: Scale },
+    { href: '/accountant/students', label: 'Student Accounts', icon: Users },
+    { href: '/accountant/classes', label: 'Classes', icon: Book },
 ];
 
 export function DashboardSidebar() {

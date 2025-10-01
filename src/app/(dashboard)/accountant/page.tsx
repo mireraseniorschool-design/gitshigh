@@ -12,7 +12,7 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { FileText, Banknote, Landmark, Scale } from 'lucide-react';
+import { FileText, Banknote, Landmark, Scale, ArrowRight, Users, Book } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import type { Fee, Student, Payment, Class } from '@/lib/types';
@@ -20,6 +20,8 @@ import { FeeInvoicesTable } from '@/components/dashboard/fee-invoices-table';
 import { FeeBalancesTable } from '@/components/dashboard/fee-balances-table';
 import { PaymentsTable } from '@/components/dashboard/payments-table';
 import { LogPaymentForm } from '@/components/dashboard/log-payment-form';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
 async function getData() {
     const feeDocs = await getDocs(collection(db, 'fees'));
@@ -127,46 +129,41 @@ export default async function AccountantPage() {
         </Card>
       </div>
       <div>
-        <Tabs defaultValue="invoices" className="w-full">
-            <TabsList className="grid w-full grid-cols-3">
-                <TabsTrigger value="invoices">Invoices</TabsTrigger>
-                <TabsTrigger value="payments">Payments</TabsTrigger>
-                <TabsTrigger value="balances">Fee Balances</TabsTrigger>
-            </TabsList>
-            <TabsContent value="invoices" className='mt-4'>
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Fee Invoices</CardTitle>
-                        <CardDescription>View and print all student fee invoices.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <FeeInvoicesTable fees={fees} students={students} classes={classes} />
-                    </CardContent>
-                </Card>
-            </TabsContent>
-            <TabsContent value="payments" className='mt-4'>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Payment History</CardTitle>
-                        <CardDescription>View a log of all payments received.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                        <PaymentsTable payments={payments} students={students} />
-                    </CardContent>
-                </Card>
-            </TabsContent>
-             <TabsContent value="balances" className='mt-4'>
-                 <Card>
-                    <CardHeader>
-                        <CardTitle>Student Fee Balances</CardTitle>
-                        <CardDescription>A summary of outstanding balances per student.</CardDescription>
-                    </CardHeader>
-                    <CardContent>
-                       <FeeBalancesTable fees={fees} students={students} classes={classes} />
-                    </CardContent>
-                </Card>
-            </TabsContent>
-        </Tabs>
+        <Card className="col-span-1 md:col-span-3">
+          <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Navigate to key financial sections.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/accountant/invoices">
+                  <div className="flex items-center gap-4">
+                    <FileText className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Manage Invoices</span>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/accountant/payments">
+                  <div className="flex items-center gap-4">
+                    <Banknote className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">View Payments</span>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/accountant/balances">
+                  <div className="flex items-center gap-4">
+                    <Scale className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Student Balances</span>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
