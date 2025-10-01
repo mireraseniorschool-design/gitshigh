@@ -8,7 +8,7 @@ import {
 import { PenSquare } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, writeBatch, doc } from 'firebase/firestore';
-import type { Student, Subject, Exam, Mark } from '@/lib/types';
+import type { Student, Subject, Exam, Mark, Class } from '@/lib/types';
 import { MarkEntryForm } from '@/components/dashboard/mark-entry-form';
 
 
@@ -22,12 +22,15 @@ async function getData() {
     const examDocs = await getDocs(collection(db, 'exams'));
     const exams = examDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Exam));
     
-    return { students, subjects, exams };
+    const classDocs = await getDocs(collection(db, 'classes'));
+    const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
+
+    return { students, subjects, exams, classes };
 }
 
 
 export default async function TeacherMarksPage() {
-  const { students, subjects, exams } = await getData();
+  const { students, subjects, exams, classes } = await getData();
 
   async function handleSaveMark(data: Omit<Mark, 'id'>) {
     'use server';
@@ -50,13 +53,18 @@ export default async function TeacherMarksPage() {
         <Card>
             <CardHeader>
             <CardTitle>Enter Student Marks</CardTitle>
-            <CardDescription>Input student marks for exams.</CardDescription>
+            <CardDescription>Select class, exam, and subject, then enter scores for each student.</CardDescription>
             </CardHeader>
             <CardContent>
-                <MarkEntryForm students={students} subjects={subjects} exams={exams} onSaveMark={handleSaveMark}/>
+                <MarkEntryForm 
+                    students={students} 
+                    subjects={subjects} 
+                    exams={exams} 
+                    classes={classes}
+                    onSaveMark={handleSaveMark}
+                />
             </CardContent>
         </Card>
     </div>
   );
 }
-

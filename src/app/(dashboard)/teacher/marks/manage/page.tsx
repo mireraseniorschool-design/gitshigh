@@ -8,7 +8,7 @@ import {
 import { Edit } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, query, where, writeBatch, doc } from 'firebase/firestore';
-import type { Student, Subject, Exam, Mark } from '@/lib/types';
+import type { Student, Subject, Exam, Mark, Class } from '@/lib/types';
 import { ManageMarks } from '@/components/dashboard/manage-marks';
 
 type MarkWithId = Mark & { id: string };
@@ -25,12 +25,15 @@ async function getData() {
     
     const marksDocs = await getDocs(collection(db, 'marks'));
     const marks = marksDocs.docs.map(doc => ({...doc.data(), id: doc.id } as MarkWithId));
+    
+    const classDocs = await getDocs(collection(db, 'classes'));
+    const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
 
-    return { students, subjects, exams, marks };
+    return { students, subjects, exams, marks, classes };
 }
 
 export default async function TeacherManageMarksPage() {
-  const { students, subjects, exams, marks } = await getData();
+  const { students, subjects, exams, marks, classes } = await getData();
 
   async function handleUpdateMarks(updatedMarks: { markId: string, score: number }[]) {
     'use server';
@@ -58,13 +61,14 @@ export default async function TeacherManageMarksPage() {
         <Card>
             <CardHeader>
             <CardTitle>View and Edit Student Marks</CardTitle>
-            <CardDescription>Filter by exam and subject to view and update scores.</CardDescription>
+            <CardDescription>Filter by class, exam, and subject to view and update scores.</CardDescription>
             </CardHeader>
             <CardContent>
                 <ManageMarks 
                     students={students} 
                     subjects={subjects} 
                     exams={exams} 
+                    classes={classes}
                     initialMarks={marks}
                     onUpdateMarks={handleUpdateMarks}
                 />

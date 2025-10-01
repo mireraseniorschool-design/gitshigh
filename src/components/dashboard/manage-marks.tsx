@@ -3,7 +3,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { useForm, useFieldArray } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Student, Subject, Exam, Mark } from '@/lib/types';
+import type { Student, Subject, Exam, Mark, Class } from '@/lib/types';
 import { Button } from '@/components/ui/button';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -21,6 +21,7 @@ const markUpdateSchema = z.object({
 });
 
 const formSchema = z.object({
+  classId: z.string().min(1, 'Please select a class.'),
   examId: z.string().min(1, 'Please select an exam.'),
   subjectId: z.string().min(1, 'Please select a subject.'),
   marks: z.array(markUpdateSchema),
@@ -32,12 +33,14 @@ export function ManageMarks({
   students,
   subjects,
   exams,
+  classes,
   initialMarks,
   onUpdateMarks,
 }: {
   students: Student[];
   subjects: Subject[];
   exams: Exam[];
+  classes: Class[];
   initialMarks: MarkWithId[];
   onUpdateMarks: (data: { markId: string; score: number }[]) => Promise<{ success: boolean; message?: string }>;
 }) {
@@ -49,6 +52,7 @@ export function ManageMarks({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      classId: '',
       examId: '',
       subjectId: '',
       marks: [],
@@ -60,37 +64,42 @@ export function ManageMarks({
     name: "marks",
   });
 
+  const classId = form.watch('classId');
   const examId = form.watch('examId');
   const subjectId = form.watch('subjectId');
 
   useEffect(() => {
-    if (examId && subjectId) {
+    if (classId && examId && subjectId) {
       setIsFiltering(true);
+      
+      const classStudentIds = students.filter(s => s.classId === classId).map(s => s.id);
+
       const relevantMarks = initialMarks.filter(
-        (mark) => mark.examId === examId && mark.subjectId === subjectId
+        (mark) =>
+          mark.examId === examId &&
+          mark.subjectId === subjectId &&
+          classStudentIds.includes(mark.studentId)
       );
 
       const studentMarksForForm = students
-        .filter(student => {
-            const hasMark = relevantMarks.some(rm => rm.studentId === student.id);
-            return hasMark; // Only include students that have a mark for the selected filter
-        })
+        .filter(student => classStudentIds.includes(student.id))
         .map(student => {
             const mark = relevantMarks.find(m => m.studentId === student.id);
             return {
-                markId: mark!.id, // mark is guaranteed to be found due to filter
-                studentName: student.name, // For display
-                studentId: student.id, // For display
-                score: mark!.score,
+                markId: mark?.id || `new-${student.id}`,
+                studentName: student.name,
+                studentId: student.id,
+                score: mark?.score ?? 0,
             };
-        });
+        })
+        .filter(sm => sm.markId.startsWith('new-') === false); // Only show students who already have a mark
 
       replace(studentMarksForForm.map(m => ({ markId: m.markId, score: m.score, studentId: m.studentId, studentName: m.studentName })));
       setIsFiltering(false);
     } else {
       replace([]);
     }
-  }, [examId, subjectId, initialMarks, students, replace]);
+  }, [classId, examId, subjectId, initialMarks, students, replace]);
   
   const studentData = useMemo(() => {
      return fields.map(field => {
@@ -133,7 +142,31 @@ export function ManageMarks({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+           <FormField
+            control={form.control}
+            name="classId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Filter by Class</FormLabel>
+                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a class" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {classes.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name} {c.stream}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
           <FormField
             control={form.control}
             name="examId"
@@ -223,8 +256,8 @@ export function ManageMarks({
                 ))
               ) : (
                 <TableRow>
-                  <TableCell colSpan={3} className="text-center text-muted-foreground">
-                    No marks found for this filter. Select an exam and subject to get started.
+                  <TableCell colSpan={3} className="text-center text-muted-foreground h-24">
+                    No marks found for these filters. Select a class, exam, and subject to get started.
                   </TableCell>
                 </TableRow>
               )}

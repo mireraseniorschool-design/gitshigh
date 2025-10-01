@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import type { Student, Attendance } from '@/lib/types';
+import type { Student, Attendance, Class } from '@/lib/types';
 import { format } from 'date-fns';
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
@@ -14,7 +14,8 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useRouter } from 'next/navigation';
-import { Form, FormField, FormItem } from '@/components/ui/form';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const attendanceSchema = z.object({
   studentId: z.string(),
@@ -31,41 +32,46 @@ type FormData = z.infer<typeof formSchema>;
 export function AttendanceManager({
   students,
   attendance,
+  classes,
   onSaveAttendance,
 }: {
   students: Student[];
   attendance: Attendance[];
+  classes: Class[];
   onSaveAttendance: (data: { studentId: string, status: 'Present' | 'Absent' | 'Late', date: string }[]) => Promise<{ success: boolean; message?: string }>;
 }) {
   const [isLoading, setIsLoading] = useState(false);
   const [isClient, setIsClient] = useState(false);
+  const [selectedClassId, setSelectedClassId] = useState('');
   const { toast } = useToast();
   const router = useRouter();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      // Set a non-dynamic default, will be updated by useEffect on client
       date: new Date(0), 
-      attendance: students.map(student => ({
-        studentId: student.id,
-        status: 'Present',
-      })),
+      attendance: [],
     },
   });
+
+  const filteredStudents = selectedClassId ? students.filter(s => s.classId === selectedClassId) : [];
 
   useEffect(() => {
     setIsClient(true);
     const today = new Date();
     form.setValue('date', today);
     handleDateChange(today);
-  }, []); // Empty dependency array ensures this runs once on mount
+  }, []);
+
+  useEffect(() => {
+    handleDateChange(form.getValues('date'));
+  }, [selectedClassId]);
 
   const handleDateChange = (date: Date | undefined) => {
     if (!date) return;
     form.setValue('date', date);
     const dateString = format(date, 'yyyy-MM-dd');
-    const newAttendance = students.map(student => {
+    const newAttendance = filteredStudents.map(student => {
       const recordedAttendance = attendance.find(a => a.studentId === student.id && a.date === dateString);
       return { studentId: student.id, status: recordedAttendance?.status || 'Present' };
     });
@@ -73,6 +79,10 @@ export function AttendanceManager({
   };
 
   async function onSubmit(values: FormData) {
+    if (filteredStudents.length === 0) {
+        toast({ variant: 'destructive', title: 'No students to save', description: 'Please select a class with students.'});
+        return;
+    }
     setIsLoading(true);
     const dateString = format(values.date, 'yyyy-MM-dd');
     const payload = values.attendance.map(att => ({
@@ -99,21 +109,14 @@ export function AttendanceManager({
   }
   
   if (!isClient) {
-    // Render a loading state or skeleton to avoid hydration mismatch
     return (
         <div className="space-y-6">
             <div className="flex items-center gap-4">
                 <div className="h-10 w-[280px] bg-muted rounded-md animate-pulse"></div>
             </div>
             <div className="space-y-4 rounded-md border p-4">
-                {students.slice(0, 5).map(student => (
-                    <div key={student.id} className="flex items-center justify-between">
-                        <div className="h-6 w-32 bg-muted rounded-md animate-pulse"></div>
-                        <div className="h-6 w-64 bg-muted rounded-md animate-pulse"></div>
-                    </div>
-                ))}
+                <p className="text-muted-foreground">Loading attendance...</p>
             </div>
-            <div className="h-10 w-32 bg-muted rounded-md animate-pulse"></div>
         </div>
     );
   }
@@ -121,7 +124,22 @@ export function AttendanceManager({
   return (
     <Form {...form}>
     <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-      <div className="flex items-center gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="flex flex-col gap-2">
+            <Label>Class</Label>
+            <Select onValueChange={setSelectedClassId} value={selectedClassId}>
+                <SelectTrigger>
+                    <SelectValue placeholder="Select a class" />
+                </SelectTrigger>
+                <SelectContent>
+                {classes.map(c => (
+                    <SelectItem key={c.id} value={c.id}>
+                    {c.name} {c.stream}
+                    </SelectItem>
+                ))}
+                </SelectContent>
+            </Select>
+        </div>
         <FormField
           control={form.control}
           name="date"
@@ -133,7 +151,7 @@ export function AttendanceManager({
                   <Button
                     variant={'outline'}
                     className={cn(
-                      'w-[280px] justify-start text-left font-normal',
+                      'w-full justify-start text-left font-normal',
                       !field.value && 'text-muted-foreground'
                     )}
                   >
@@ -155,39 +173,43 @@ export function AttendanceManager({
         />
       </div>
 
-      <div className="space-y-4 rounded-md border p-4">
-        {students.map((student, index) => (
-          <div key={student.id} className="flex items-center justify-between">
-            <Label>{student.name}</Label>
-            <FormField
-              control={form.control}
-              name={`attendance.${index}.status`}
-              render={({ field }) => (
-                <RadioGroup
-                  onValueChange={field.onChange}
-                  defaultValue={field.value}
-                  className="flex items-center space-x-4"
-                >
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Present" id={`present-${student.id}`} />
-                    <Label htmlFor={`present-${student.id}`}>Present</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Absent" id={`absent-${student.id}`} />
-                    <Label htmlFor={`absent-${student.id}`}>Absent</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="Late" id={`late-${student.id}`} />
-                    <Label htmlFor={`late-${student.id}`}>Late</Label>
-                  </div>
-                </RadioGroup>
-              )}
-            />
-          </div>
-        ))}
+      <div className="space-y-4 rounded-md border p-4 min-h-[10rem]">
+        {filteredStudents.length > 0 ? (
+            filteredStudents.map((student, index) => (
+            <div key={student.id} className="flex items-center justify-between">
+                <Label>{student.name}</Label>
+                <FormField
+                control={form.control}
+                name={`attendance.${index}.status`}
+                render={({ field }) => (
+                    <RadioGroup
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                    className="flex items-center space-x-4"
+                    >
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Present" id={`present-${student.id}`} />
+                        <Label htmlFor={`present-${student.id}`}>Present</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Absent" id={`absent-${student.id}`} />
+                        <Label htmlFor={`absent-${student.id}`}>Absent</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="Late" id={`late-${student.id}`} />
+                        <Label htmlFor={`late-${student.id}`}>Late</Label>
+                    </div>
+                    </RadioGroup>
+                )}
+                />
+            </div>
+            ))
+        ) : (
+            <p className="text-center text-muted-foreground pt-8">Please select a class to view students.</p>
+        )}
       </div>
       
-      <Button type="submit" disabled={isLoading}>
+      <Button type="submit" disabled={isLoading || filteredStudents.length === 0}>
         {isLoading ? (
             <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
