@@ -26,6 +26,10 @@ async function getData(invoiceId: string) {
     }
     const invoice = { ...invoiceDocSnap.data(), id: invoiceDocSnap.id } as Fee;
 
+    if (!invoice.studentId) {
+        return { invoice, student: null };
+    }
+
     const studentDocRef = doc(db, 'students', invoice.studentId);
     const studentDocSnap = await getDoc(studentDocRef);
     const student = studentDocSnap.exists() ? { ...studentDocSnap.data(), id: studentDocSnap.id } as Student : null;
@@ -45,7 +49,7 @@ type UpdateInvoiceData = z.infer<typeof updateInvoiceSchema>;
 export default async function EditInvoicePage({ params }: { params: { id: string } }) {
     const { invoice, student } = await getData(params.id);
 
-    if (!invoice || !student) {
+    if (!invoice) {
         notFound();
     }
     
@@ -84,7 +88,7 @@ export default async function EditInvoicePage({ params }: { params: { id: string
           <Card>
             <CardHeader>
               <CardTitle>Invoice #{invoice.invoiceId}</CardTitle>
-              <CardDescription>Update details for {student.name}'s invoice.</CardDescription>
+              <CardDescription>Update details for {student?.name || 'a student'}'s invoice.</CardDescription>
             </CardHeader>
             <CardContent>
                 <EditInvoiceForm 
