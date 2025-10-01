@@ -14,12 +14,13 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import { useMemo, useState } from 'react';
 
 // This is a new Client Component to handle state and user interactions.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   'use client';
   
+  const { useMemo, useState } = require('react');
+
   const [searchTerm, setSearchTerm] = useState('');
 
   const studentsWithClass = useMemo(() => initialStudents.map(student => {
