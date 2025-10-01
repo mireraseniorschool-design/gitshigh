@@ -155,7 +155,6 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                <TableHead className="hidden w-[100px] sm:table-cell">Image</TableHead>
                                 <TableHead>Name</TableHead>
                                 <TableHead>Adm No.</TableHead>
                                 <TableHead>Invoice ID</TableHead>
@@ -167,12 +166,6 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
                             <TableBody>
                                 {students.map((student) => (
                                 <TableRow key={student.id}>
-                                    <TableCell className="hidden sm:table-cell">
-                                    <Avatar className="h-9 w-9">
-                                        <AvatarImage src={student.avatarUrl} alt={student.name} />
-                                        <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-                                    </Avatar>
-                                    </TableCell>
                                     <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell>{student.admissionNumber}</TableCell>
                                     <TableCell>

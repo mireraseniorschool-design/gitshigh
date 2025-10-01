@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import {
@@ -31,9 +30,6 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="hidden w-[100px] sm:table-cell">
-            <span className="sr-only">Image</span>
-          </TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Admission No.</TableHead>
           <TableHead className="hidden md:table-cell">Class</TableHead>
@@ -46,12 +42,6 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
       <TableBody>
         {students.length > 0 ? students.map((student) => (
           <TableRow key={student.id}>
-            <TableCell className="hidden sm:table-cell">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src={student.avatarUrl} alt={student.name} />
-                <AvatarFallback>{student.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </TableCell>
             <TableCell className="font-medium">{student.name}</TableCell>
             <TableCell>{student.admissionNumber}</TableCell>
             <TableCell className="hidden md:table-cell">
@@ -81,7 +71,7 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
           </TableRow>
         )) : (
           <TableRow>
-            <TableCell colSpan={6} className="h-24 text-center">
+            <TableCell colSpan={5} className="h-24 text-center">
               No students found.
             </TableCell>
           </TableRow>

@@ -9,7 +9,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import {
@@ -26,9 +25,6 @@ export function TeachersTable({ teachers, basePath = "/admin/teachers" }: { teac
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead className="hidden w-[100px] sm:table-cell">
-            <span className="sr-only">Image</span>
-          </TableHead>
           <TableHead>Name</TableHead>
           <TableHead>Staff ID</TableHead>
           <TableHead>Email</TableHead>
@@ -41,12 +37,6 @@ export function TeachersTable({ teachers, basePath = "/admin/teachers" }: { teac
       <TableBody>
         {teachers.map((teacher) => (
           <TableRow key={teacher.id}>
-            <TableCell className="hidden sm:table-cell">
-              <Avatar className="h-9 w-9">
-                <AvatarImage src={teacher.avatarUrl} alt={teacher.name} />
-                <AvatarFallback>{teacher.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-            </TableCell>
             <TableCell className="font-medium">{teacher.name}</TableCell>
             <TableCell>{teacher.staffId}</TableCell>
             <TableCell>{teacher.email}</TableCell>
