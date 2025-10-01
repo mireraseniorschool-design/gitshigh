@@ -71,3 +71,11 @@ export type Attendance = {
   date: string;
   status: 'Present' | 'Absent' | 'Late';
 };
+
+export type Payment = {
+    paymentId: string;
+    studentId: string;
+    invoiceId: string;
+    amount: number;
+    date: string; // ISO date string
+}

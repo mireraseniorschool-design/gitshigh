@@ -1,3 +1,4 @@
+
 import {
   Card,
   CardContent,
@@ -11,26 +12,33 @@ import {
   TabsList,
   TabsTrigger,
 } from '@/components/ui/tabs';
-import { FileText, Banknote } from 'lucide-react';
+import { FileText, Banknote, Landmark, Scale } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
-import type { Fee } from '@/lib/types';
+import type { Fee, Student, Payment, Class } from '@/lib/types';
 import { FeeInvoicesTable } from '@/components/dashboard/fee-invoices-table';
+import { FeeBalancesTable } from '@/components/dashboard/fee-balances-table';
+import { PaymentsTable } from '@/components/dashboard/payments-table';
 import { LogPaymentForm } from '@/components/dashboard/log-payment-form';
-import { students } from '@/lib/data';
 
 async function getData() {
     const feeDocs = await getDocs(collection(db, 'fees'));
     const fees = feeDocs.docs.map(doc => doc.data() as Fee);
     
     const studentDocs = await getDocs(collection(db, 'students'));
-    const students = studentDocs.docs.map(doc => ({ id: doc.id, name: doc.data().name, admissionNumber: doc.data().admissionNumber }));
+    const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
 
-    return { fees, students };
+    const paymentDocs = await getDocs(collection(db, 'payments'));
+    const payments = paymentDocs.docs.map(doc => doc.data() as Payment);
+
+    const classDocs = await getDocs(collection(db, 'classes'));
+    const classes = classDocs.docs.map(doc => ({ ...doc.data(), id: doc.id } as Class));
+
+    return { fees, students, payments, classes };
 }
 
 export default async function AccountantPage() {
-  const { fees, students } = await getData();
+  const { fees, students, payments, classes } = await getData();
 
   const totalInvoiced = fees.reduce((sum, fee) => sum + fee.amount, 0);
   const totalPaid = fees.reduce((sum, fee) => sum + fee.paidAmount, 0);
@@ -40,31 +48,44 @@ export default async function AccountantPage() {
     'use server';
     
     const feesCollectionRef = collection(db, 'fees');
-    const studentFeeDocRef = doc(feesCollectionRef, data.studentId);
-    
+    // This logic assumes one major invoice per student for simplicity.
+    // A real system would need to handle multiple invoices.
     const feeDocSnap = await getDoc(doc(db, 'fees', `inv-${data.studentId.split('-')[1]}`));
 
     if (feeDocSnap.exists()) {
+        const batch = writeBatch(db);
         const feeData = feeDocSnap.data() as Fee;
         const newPaidAmount = feeData.paidAmount + data.amount;
         const newBalance = feeData.amount - newPaidAmount;
         const newStatus = newBalance <= 0 ? 'Paid' : 'Partial';
 
-        await updateDoc(feeDocSnap.ref, {
+        batch.update(feeDocSnap.ref, {
             paidAmount: newPaidAmount,
             balance: newBalance,
             status: newStatus
         });
+
+        // Log the payment transaction
+        const paymentRef = doc(collection(db, 'payments'));
+        batch.set(paymentRef, {
+            paymentId: paymentRef.id,
+            studentId: data.studentId,
+            amount: data.amount,
+            date: new Date().toISOString(),
+            invoiceId: feeData.invoiceId
+        });
+
+        await batch.commit();
+
         return { success: true };
     }
-    return { success: false, message: 'Could not find invoice for the student.' };
+    return { success: false, message: 'Could not find an invoice for the student.' };
   }
-
 
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Finance Dashboard</h1>
-      <div className="grid gap-4 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Invoiced</CardTitle>
@@ -78,7 +99,7 @@ export default async function AccountantPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Collected</CardTitle>
-            <Banknote className="h-4 w-4 text-muted-foreground" />
+            <Landmark className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">KES {totalPaid.toLocaleString()}</div>
@@ -88,39 +109,60 @@ export default async function AccountantPage() {
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Outstanding Balance</CardTitle>
-            <FileText className="h-4 w-4 text-muted-foreground" />
+            <Scale className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold text-destructive">KES {totalBalance.toLocaleString()}</div>
             <p className="text-xs text-muted-foreground">Across all students</p>
           </CardContent>
         </Card>
+         <Card>
+            <CardHeader>
+                <CardTitle>Log Payments</CardTitle>
+                <CardDescription>Record new fee payments.</CardDescription>
+            </CardHeader>
+            <CardContent>
+                <LogPaymentForm students={students} onLogPayment={handleLogPayment} />
+            </CardContent>
+        </Card>
       </div>
       <div>
         <Tabs defaultValue="invoices" className="w-full">
-            <TabsList>
+            <TabsList className="grid w-full grid-cols-3">
                 <TabsTrigger value="invoices">Invoices</TabsTrigger>
-                <TabsTrigger value="payments">Log Payment</TabsTrigger>
+                <TabsTrigger value="payments">Payments</TabsTrigger>
+                <TabsTrigger value="balances">Fee Balances</TabsTrigger>
             </TabsList>
             <TabsContent value="invoices" className='mt-4'>
                 <Card>
                     <CardHeader>
                         <CardTitle>Fee Invoices</CardTitle>
-                        <CardDescription>View and manage all student fee invoices.</CardDescription>
+                        <CardDescription>View and print all student fee invoices.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <FeeInvoicesTable fees={fees} students={students} />
+                        <FeeInvoicesTable fees={fees} students={students} classes={classes} />
                     </CardContent>
                 </Card>
             </TabsContent>
             <TabsContent value="payments" className='mt-4'>
                  <Card>
                     <CardHeader>
-                        <CardTitle>Record Payments</CardTitle>
-                        <CardDescription>Log new fee payments from students.</CardDescription>
+                        <CardTitle>Payment History</CardTitle>
+                        <CardDescription>View a log of all payments received.</CardDescription>
                     </CardHeader>
                     <CardContent>
-                        <LogPaymentForm students={students} onLogPayment={handleLogPayment} />
+                        <PaymentsTable payments={payments} students={students} />
+                    </CardContent>
+                </Card>
+            </TabsContent>
+             <TabsContent value="balances" className='mt-4'>
+                 <Card>
+                    <CardHeader>
+                        <CardTitle>Student Fee Balances</CardTitle>
+                        <CardDescription>A summary of outstanding balances per student.</CardDescription>
+                    </CardHeader>
+                    <CardContent>
+                       <FeeBalancesTable fees={fees} students={students} classes={classes} />
                     </CardContent>
                 </Card>
             </TabsContent>

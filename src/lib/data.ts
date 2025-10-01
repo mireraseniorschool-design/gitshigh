@@ -1,4 +1,4 @@
-import type { Student, Teacher, Class, Subject, Fee, User, Mark, Exam, Attendance } from './types';
+import type { Student, Teacher, Class, Subject, Fee, User, Mark, Exam, Attendance, Payment } from './types';
 import { placeholderImages } from './placeholder-images.json';
 
 export const users: User[] = [
@@ -58,6 +58,7 @@ export const classes: Class[] = [
   { id: 'cls-2', name: 'Form 2', stream: 'B', classTeacherId: 'tch-2' },
   { id: 'cls-3', name: 'Form 3', stream: 'C', classTeacherId: 'tch-3' },
   { id: 'cls-4', name: 'Form 4', stream: 'Blue', classTeacherId: 'tch-1' },
+  { id: 'cls-6', name: 'Form 1', stream: 'B', classTeacherId: 'tch-2' },
 ];
 
 export const subjects: Subject[] = [
@@ -316,6 +317,14 @@ export const attendance: Attendance[] = [
     { studentId: 'std-1', date: '2024-07-29', status: 'Present' },
     { studentId: 'std-2', date: '2024-07-29', status: 'Present' },
 ];
+
+export const payments: Payment[] = [
+    { paymentId: 'pay-1', studentId: 'std-1', invoiceId: 'inv-001', amount: 25000, date: '2024-07-20T10:00:00Z' },
+    { paymentId: 'pay-2', studentId: 'std-1', invoiceId: 'inv-001', amount: 25000, date: '2024-08-15T14:30:00Z' },
+    { paymentId: 'pay-3', studentId: 'std-2', invoiceId: 'inv-002', amount: 25000, date: '2024-08-01T09:00:00Z' },
+    { paymentId: 'pay-4', studentId: 'std-4', invoiceId: 'inv-004', amount: 48000, date: '2024-07-25T11:00:00Z' },
+];
+
 
 
 

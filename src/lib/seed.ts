@@ -2,7 +2,7 @@
 
 import { db } from './firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
-import { students, teachers, classes, subjects, exams, marks, fees, users, attendance } from './data';
+import { students, teachers, classes, subjects, exams, marks, fees, users, attendance, payments } from './data';
 
 export async function seedDatabase() {
   const batch = writeBatch(db);
@@ -70,6 +70,13 @@ export async function seedDatabase() {
     attendance.forEach(att => {
         const attRef = doc(collection(db, 'attendance'));
         batch.set(attRef, att);
+    });
+
+    // Seed payments
+    const paymentsCol = collection(db, 'payments');
+    payments.forEach(payment => {
+        const payRef = doc(paymentsCol, payment.paymentId);
+        batch.set(payRef, payment);
     });
 
 
