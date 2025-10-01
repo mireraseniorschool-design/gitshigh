@@ -22,7 +22,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import { useState } from 'react';
 import { Loader2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import type { Class } from '@/lib/types';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CalendarIcon } from 'lucide-react';
@@ -60,6 +60,9 @@ export function AddStudentForm({
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const router = useRouter();
+  const pathname = usePathname();
+  const basePath = pathname.includes('/admin/') ? '/admin' : '/dean';
+
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -88,7 +91,7 @@ export function AddStudentForm({
         description: result.message || 'The new student has been successfully enrolled.',
       });
       router.refresh();
-      router.push('/dean/students');
+      router.push(`${basePath}/students`);
     } else {
       toast({
         variant: 'destructive',

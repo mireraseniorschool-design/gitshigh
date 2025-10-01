@@ -93,25 +93,24 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
   )
 }
 
-// The page itself remains a server component for data fetching, but we import it here.
 // NOTE: This structure is slightly unconventional but necessary to resolve the async Client Component error.
 // The actual default export is a server component defined below the client one.
+// In a typical refactor, this async data fetching would happen in a parent Server Component.
+
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+
+async function getData() {
+    const studentDocs = await getDocs(collection(db, 'students'));
+    const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
+
+    const classDocs = await getDocs(collection(db, 'classes'));
+    const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
+    
+    return { students, classes };
+}
 
 async function AdminStudentsPage() {
-  // This function is now part of the Server Component logic, but colocated.
-  // In a typical refactor, the Client Component would be in a separate file.
-  const { db } = await import('@/lib/firebase');
-  const { collection, getDocs } = await import('firebase/firestore');
-
-  async function getData() {
-      const studentDocs = await getDocs(collection(db, 'students'));
-      const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
-
-      const classDocs = await getDocs(collection(db, 'classes'));
-      const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
-      
-      return { students, classes };
-  }
   const { students, classes } = await getData();
 
   return (
@@ -122,7 +121,4 @@ async function AdminStudentsPage() {
   );
 }
 
-// We trick Next.js by exporting the async component as the default.
-// The 'use client' directive at the top of the file makes StudentListClient a client component,
-// but the default export remains a server component.
 export default AdminStudentsPage;
