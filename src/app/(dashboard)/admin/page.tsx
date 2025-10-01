@@ -18,6 +18,9 @@ import type { Student, Teacher, Class, Fee } from '@/lib/types';
 import { StudentsTable } from '@/components/dashboard/students-table';
 import { TeachersTable } from '@/components/dashboard/teachers-table';
 import { ClassesTable } from '@/components/dashboard/classes-table';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
+import { PlusCircle } from 'lucide-react';
 
 
 async function getData() {
@@ -100,33 +103,64 @@ export default async function AdminPage() {
           <TabsContent value="students" className="mt-4">
             <Card>
               <CardHeader>
-                <CardTitle>Manage Students</CardTitle>
-                <CardDescription>View and manage all student records.</CardDescription>
+                <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Manage Students</CardTitle>
+                        <CardDescription>View, search, and manage all student records.</CardDescription>
+                    </div>
+                    <Button asChild>
+                      <Link href="/admin/students">
+                        <Users className="mr-2 h-4 w-4" />
+                        Go to Student Management
+                      </Link>
+                    </Button>
+                </div>
               </CardHeader>
               <CardContent>
-                <StudentsTable students={students} />
+                <StudentsTable students={students.slice(0, 5)} />
+                 <p className="text-sm text-muted-foreground mt-4">Showing first 5 students. Go to the student management page to see all.</p>
               </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="teachers" className="mt-4">
             <Card>
                 <CardHeader>
-                <CardTitle>Manage Teachers</CardTitle>
-                <CardDescription>Add, edit, or remove teacher records.</CardDescription>
+                  <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Manage Teachers</CardTitle>
+                        <CardDescription>Add, edit, or remove teacher records.</CardDescription>
+                    </div>
+                    <Button asChild>
+                      <Link href="/admin/teachers/add">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Teacher
+                      </Link>
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                <TeachersTable teachers={teachers} />
+                <TeachersTable teachers={teachers} basePath="/admin/teachers" />
                 </CardContent>
             </Card>
           </TabsContent>
           <TabsContent value="classes" className="mt-4">
             <Card>
                 <CardHeader>
-                <CardTitle>Manage Classes</CardTitle>
-                <CardDescription>Create new classes and assign teachers.</CardDescription>
+                  <div className="flex justify-between items-center">
+                    <div>
+                        <CardTitle>Manage Classes</CardTitle>
+                        <CardDescription>Create new classes and assign teachers.</CardDescription>
+                    </div>
+                     <Button asChild>
+                      <Link href="/admin/classes/add">
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Add Class
+                      </Link>
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
-                <ClassesTable classes={classes} teachers={teachers} />
+                <ClassesTable classes={classes} teachers={teachers} basePath="/admin/classes" />
                 </CardContent>
             </Card>
           </TabsContent>

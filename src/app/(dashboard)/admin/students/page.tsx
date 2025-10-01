@@ -40,6 +40,17 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
     );
   }, [searchTerm, studentsWithClass]);
 
+  const groupedStudents = useMemo(() => {
+    return filteredStudents.reduce((acc, student) => {
+        const className = student.className || 'Unassigned';
+        if (!acc[className]) {
+            acc[className] = [];
+        }
+        acc[className].push(student);
+        return acc;
+    }, {} as Record<string, typeof filteredStudents>);
+  }, [filteredStudents]);
+
   return (
      <Card>
         <CardHeader>
@@ -67,7 +78,16 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <StudentsTable students={filteredStudents} basePath="/admin/students" />
+          <div className='space-y-6'>
+            {Object.entries(groupedStudents).sort(([a], [b]) => a.localeCompare(b)).map(([className, students]) => (
+                <div key={className}>
+                    <h3 className="text-lg font-semibold mb-2">{className}</h3>
+                    <div className="border rounded-lg">
+                        <StudentsTable students={students} basePath="/admin/students" />
+                    </div>
+                </div>
+            ))}
+          </div>
         </CardContent>
       </Card>
   )

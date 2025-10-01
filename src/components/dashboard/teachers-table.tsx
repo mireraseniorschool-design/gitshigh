@@ -19,8 +19,9 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
-export function TeachersTable({ teachers }: { teachers: Teacher[] }) {
+export function TeachersTable({ teachers, basePath = "/admin/teachers" }: { teachers: Teacher[], basePath?: string }) {
   return (
     <Table>
       <TableHeader>
@@ -60,7 +61,9 @@ export function TeachersTable({ teachers }: { teachers: Teacher[] }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`${basePath}/${teacher.id}/edit`}>Edit</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem>View Details</DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>

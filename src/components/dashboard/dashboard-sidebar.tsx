@@ -40,7 +40,6 @@ const adminLinks = [
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/teachers', label: 'Teachers', icon: User },
   { href: '/admin/classes', label: 'Classes', icon: Book },
-  { href: '/admin/users', label: 'System Users', icon: Cog },
 ];
 
 const deanLinks = [

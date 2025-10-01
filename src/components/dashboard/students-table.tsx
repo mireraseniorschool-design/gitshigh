@@ -44,7 +44,7 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
         </TableRow>
       </TableHeader>
       <TableBody>
-        {students.map((student) => (
+        {students.length > 0 ? students.map((student) => (
           <TableRow key={student.id}>
             <TableCell className="hidden sm:table-cell">
               <Avatar className="h-9 w-9">
@@ -79,7 +79,13 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
               </DropdownMenu>
             </TableCell>
           </TableRow>
-        ))}
+        )) : (
+          <TableRow>
+            <TableCell colSpan={6} className="h-24 text-center">
+              No students found.
+            </TableCell>
+          </TableRow>
+        )}
       </TableBody>
     </Table>
   );
