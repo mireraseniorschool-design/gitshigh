@@ -1,6 +1,4 @@
-'use client';
 
-import { useState, useMemo } from 'react';
 import {
   Card,
   CardContent,
@@ -14,9 +12,14 @@ import { StudentsTable } from '@/components/dashboard/students-table';
 import { Search, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
+import { useMemo, useState } from 'react';
 
 // This is a new Client Component to handle state and user interactions.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
+  'use client';
+  
   const [searchTerm, setSearchTerm] = useState('');
 
   const studentsWithClass = useMemo(() => initialStudents.map(student => {
@@ -98,9 +101,6 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
 }
 
 // The main page component is now a Server Component that fetches data.
-import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
-
 async function getData() {
     const studentDocs = await getDocs(collection(db, 'students'));
     const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
