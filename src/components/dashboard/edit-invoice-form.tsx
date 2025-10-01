@@ -24,6 +24,7 @@ import { format } from 'date-fns';
 
 const formSchema = z.object({
   amount: z.coerce.number().min(0, 'Amount must be a positive number.'),
+  paidAmount: z.coerce.number().min(0, "Paid amount must be a positive number."),
   dueDate: z.date(),
 });
 
@@ -44,6 +45,7 @@ export function EditInvoiceForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       amount: invoice.amount,
+      paidAmount: invoice.paidAmount,
       dueDate: new Date(invoice.dueDate),
     },
   });
@@ -76,7 +78,20 @@ export function EditInvoiceForm({
           name="amount"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Invoice Amount (KES)</FormLabel>
+              <FormLabel>Total Invoice Amount (KES)</FormLabel>
+              <FormControl>
+                <Input type="number" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="paidAmount"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Amount Paid (KES)</FormLabel>
               <FormControl>
                 <Input type="number" {...field} />
               </FormControl>

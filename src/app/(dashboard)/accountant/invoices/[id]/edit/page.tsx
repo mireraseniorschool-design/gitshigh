@@ -30,6 +30,7 @@ async function getData(invoiceId: string) {
 
 const updateInvoiceSchema = z.object({
   amount: z.coerce.number().min(0, 'Amount must be a positive number.'),
+  paidAmount: z.coerce.number().min(0, "Paid amount must be a positive number."),
   dueDate: z.date(),
 });
 
@@ -48,11 +49,16 @@ export default async function EditInvoicePage({ params }: { params: { id: string
         try {
             const invoiceRef = doc(db, 'fees', invoice!.invoiceId);
             
-            const newBalance = data.amount - invoice!.paidAmount;
-            const newStatus = newBalance <= 0 ? (invoice!.paidAmount > 0 ? 'Paid' : 'Unpaid') : 'Partial';
+            if (data.paidAmount > data.amount) {
+                return { success: false, message: "Paid amount cannot be greater than the total invoice amount."};
+            }
+
+            const newBalance = data.amount - data.paidAmount;
+            const newStatus = newBalance <= 0 ? 'Paid' : (data.paidAmount > 0 ? 'Partial' : 'Unpaid');
 
             await updateDoc(invoiceRef, {
                 amount: data.amount,
+                paidAmount: data.paidAmount,
                 dueDate: data.dueDate.toISOString().split('T')[0],
                 balance: newBalance,
                 status: newStatus,
