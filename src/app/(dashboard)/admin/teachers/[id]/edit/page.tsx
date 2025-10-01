@@ -14,6 +14,7 @@ import { z } from 'zod';
 
 export async function generateStaticParams() {
   const teachersSnapshot = await getDocs(collection(db, 'teachers'));
+  // The parameter for this page is `id`, so we must return `id` in the params object.
   return teachersSnapshot.docs.map(doc => ({ id: doc.id }));
 }
 
