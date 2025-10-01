@@ -26,6 +26,7 @@ import {
   LogOut,
   Cog,
   Bot,
+  Edit,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
@@ -52,6 +53,7 @@ const deanLinks = [
 const teacherLinks = [
   { href: '/teacher', label: 'Attendance', icon: ClipboardCheck },
   { href: '/teacher/marks', label: 'Enter Marks', icon: PenSquare },
+  { href: '/teacher/marks/manage', label: 'Manage Marks', icon: Edit },
 ];
 
 const accountantLinks = [
