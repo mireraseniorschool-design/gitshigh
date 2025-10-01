@@ -11,14 +11,10 @@ import {
 import { Input } from '@/components/ui/input';
 import type { Student, Class } from '@/lib/types';
 import { StudentsTable } from '@/components/dashboard/students-table';
-import { Search } from 'lucide-react';
+import { Search, PlusCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import Link from 'next/link';
 
-// The data fetching part is now intended to be passed as props
-// since we can't use async/await in a 'use client' component's main body
-// for the initial render in this architecture.
-// For this specific request, I will assume the page props with data are passed down.
-// But looking at the file, it was a server component before.
-// I will create a new client component to wrap the table and search.
 
 // Let's refactor the page. It will remain a server component to fetch data,
 // and pass it to a new client component that will handle search and display.
@@ -49,8 +45,18 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
   return (
      <Card>
         <CardHeader>
-          <CardTitle>Student Roster</CardTitle>
-          <CardDescription>View and manage student records. Use the search box to filter by name or admission number.</CardDescription>
+          <div className="flex justify-between items-start">
+            <div>
+              <CardTitle>Student Roster</CardTitle>
+              <CardDescription>View, search, and manage student records.</CardDescription>
+            </div>
+            <Button asChild>
+              <Link href="/dean/students/add">
+                <PlusCircle className="mr-2 h-4 w-4" />
+                Add Student
+              </Link>
+            </Button>
+          </div>
         </CardHeader>
         <CardContent>
           <div className="mb-4 relative">
