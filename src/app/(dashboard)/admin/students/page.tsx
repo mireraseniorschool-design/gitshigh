@@ -1,3 +1,8 @@
+
+// This is the Client Component that will handle all user interactions.
+'use client';
+
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -13,12 +18,9 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-import React from 'react';
 
-// This is the Client Component that will handle all user interactions.
+
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
-  'use client';
-
   const [searchTerm, setSearchTerm] = React.useState('');
 
   const studentsWithClass = React.useMemo(() => initialStudents.map(student => {
