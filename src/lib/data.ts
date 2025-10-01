@@ -309,6 +309,36 @@ export const fees: Fee[] = [
   { invoiceId: 'inv-002', studentId: 'std-2', amount: 50000, dueDate: '2024-09-01', paidAmount: 25000, balance: 25000, status: 'Partial' },
   { invoiceId: 'inv-003', studentId: 'std-3', amount: 52000, dueDate: '2024-09-01', paidAmount: 0, balance: 52000, status: 'Unpaid' },
   { invoiceId: 'inv-004', studentId: 'std-4', amount: 48000, dueDate: '2024-09-01', paidAmount: 48000, balance: 0, status: 'Paid' },
+  { "invoiceId": "inv-4710", "studentId": "std-4710", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4717", "studentId": "std-4717", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 50000, "balance": 2000, "status": "Partial" },
+  { "invoiceId": "inv-4496", "studentId": "std-4496", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 0, "balance": 52000, "status": "Unpaid" },
+  { "invoiceId": "inv-4894", "studentId": "std-4894", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4699", "studentId": "std-4699", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 10000, "balance": 42000, "status": "Partial" },
+  { "invoiceId": "inv-4906", "studentId": "std-4906", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4935", "studentId": "std-4935", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 20000, "balance": 32000, "status": "Partial" },
+  { "invoiceId": "inv-4497", "studentId": "std-4497", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-5121", "studentId": "std-5121", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 0, "balance": 52000, "status": "Unpaid" },
+  { "invoiceId": "inv-4718", "studentId": "std-4718", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4742", "studentId": "std-4742", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 30000, "balance": 22000, "status": "Partial" },
+  { "invoiceId": "inv-5136", "studentId": "std-5136", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-6247", "studentId": "std-6247", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4814", "studentId": "std-4814", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 40000, "balance": 12000, "status": "Partial" },
+  { "invoiceId": "inv-6301", "studentId": "std-6301", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 0, "balance": 52000, "status": "Unpaid" },
+  { "invoiceId": "inv-4758", "studentId": "std-4758", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-5845", "studentId": "std-5845", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 15000, "balance": 37000, "status": "Partial" },
+  { "invoiceId": "inv-5018", "studentId": "std-5018", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4747", "studentId": "std-4747", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-5647", "studentId": "std-5647", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 5000, "balance": 47000, "status": "Partial" },
+  { "invoiceId": "inv-4793", "studentId": "std-4793", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 0, "balance": 52000, "status": "Unpaid" },
+  { "invoiceId": "inv-4858", "studentId": "std-4858", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-3977", "studentId": "std-3977", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 25000, "balance": 27000, "status": "Partial" },
+  { "invoiceId": "inv-6274", "studentId": "std-6274", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4697", "studentId": "std-4697", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 0, "balance": 52000, "status": "Unpaid" },
+  { "invoiceId": "inv-4768", "studentId": "std-4768", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4745", "studentId": "std-4745", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 35000, "balance": 17000, "status": "Partial" },
+  { "invoiceId": "inv-5125", "studentId": "std-5125", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4755", "studentId": "std-4755", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" },
+  { "invoiceId": "inv-4812", "studentId": "std-4812", "amount": 52000, "dueDate": "2024-09-01", "paidAmount": 52000, "balance": 0, "status": "Paid" }
 ];
 
 export const attendance: Attendance[] = [
@@ -324,6 +354,7 @@ export const payments: Payment[] = [
     { paymentId: 'pay-3', studentId: 'std-2', invoiceId: 'inv-002', amount: 25000, date: '2024-08-01T09:00:00Z' },
     { paymentId: 'pay-4', studentId: 'std-4', invoiceId: 'inv-004', amount: 48000, date: '2024-07-25T11:00:00Z' },
 ];
+
 
 
 
