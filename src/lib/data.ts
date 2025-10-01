@@ -54,6 +54,7 @@ export const teachers: Teacher[] = [
 
 export const classes: Class[] = [
   { id: 'cls-1', name: 'Form 1', stream: 'A', classTeacherId: 'tch-1' },
+  { id: 'cls-5', name: 'Form 1', stream: 'B', classTeacherId: 'tch-2' },
   { id: 'cls-2', name: 'Form 2', stream: 'B', classTeacherId: 'tch-2' },
   { id: 'cls-3', name: 'Form 3', stream: 'C', classTeacherId: 'tch-3' },
   { id: 'cls-4', name: 'Form 4', stream: 'Blue', classTeacherId: 'tch-1' },
@@ -315,5 +316,6 @@ export const attendance: Attendance[] = [
     { studentId: 'std-1', date: '2024-07-29', status: 'Present' },
     { studentId: 'std-2', date: '2024-07-29', status: 'Present' },
 ];
+
 
 
