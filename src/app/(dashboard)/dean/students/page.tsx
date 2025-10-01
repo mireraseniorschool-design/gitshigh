@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, ReactNode } from 'react';
 import {
   Card,
   CardContent,
@@ -14,18 +14,17 @@ import { StudentsTable } from '@/components/dashboard/students-table';
 import { Search, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
+import { db } from '@/lib/firebase';
+import { collection, getDocs } from 'firebase/firestore';
 
 
-// Let's refactor the page. It will remain a server component to fetch data,
-// and pass it to a new client component that will handle search and display.
-
-// Let's create a client component to handle the filtering.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   const [searchTerm, setSearchTerm] = useState('');
 
   const studentsWithClass = useMemo(() => initialStudents.map(student => {
-    const className = classes.find(c => c.id === student.classId)?.name || 'N/A';
-    const stream = classes.find(c => c.id === student.classId)?.stream || '';
+    const studentClass = classes.find(c => c.id === student.classId);
+    const className = studentClass?.name || 'N/A';
+    const stream = studentClass?.stream || '';
     return {
         ...student,
         className: `${className} ${stream}`.trim()
@@ -42,13 +41,27 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
     );
   }, [searchTerm, studentsWithClass]);
 
+    const groupedStudents = useMemo(() => {
+    return filteredStudents.reduce((acc, student) => {
+        const className = student.className || 'Unassigned';
+        if (!acc[className]) {
+            acc[className] = [];
+        }
+        acc[className].push(student);
+        return acc;
+    }, {} as Record<string, typeof filteredStudents>);
+  }, [filteredStudents]);
+
+
   return (
-     <Card>
+    <div className="space-y-6">
+      <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
               <CardTitle>Student Roster</CardTitle>
-              <CardDescription>View, search, and manage student records.</CardDescription>
+              <CardDescription>View, search, and manage all student records.</CardDescription>
             </div>
             <Button asChild>
               <Link href="/dean/students/add">
@@ -69,34 +82,71 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <StudentsTable students={filteredStudents} basePath="/dean/students" />
+          <div className='space-y-6'>
+            {Object.entries(groupedStudents).sort(([a], [b]) => a.localeCompare(b)).map(([className, students]) => (
+                <div key={className}>
+                    <h3 className="text-lg font-semibold mb-2">{className}</h3>
+                    <div className="border rounded-lg">
+                        <StudentsTable students={students} basePath="/dean/students" />
+                    </div>
+                </div>
+            ))}
+            {Object.keys(groupedStudents).length === 0 && (
+                <div className="text-center text-muted-foreground py-12">
+                    <p>No students found matching your search.</p>
+                </div>
+            )}
+          </div>
         </CardContent>
       </Card>
-  )
-}
-
-
-// The page itself can remain a server component for data fetching
-import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
-
-async function getData() {
-    const studentDocs = await getDocs(collection(db, 'students'));
-    const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
-
-    const classDocs = await getDocs(collection(db, 'classes'));
-    const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
-    
-    return { students, classes };
-}
-
-export default async function DeanStudentsPage() {
-  const { students, classes } = await getData();
-
-  return (
-    <div className="space-y-6">
-      <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
-      <StudentListClient students={students} classes={classes} />
     </div>
   );
+}
+
+
+export default function DeanStudentsPage() {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [classes, setClasses] = useState<Class[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function getData() {
+      try {
+        const studentDocs = await getDocs(collection(db, 'students'));
+        const studentsData = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
+
+        const classDocs = await getDocs(collection(db, 'classes'));
+        const classesData = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
+        
+        studentsData.sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
+
+        setStudents(studentsData);
+        setClasses(classesData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    getData();
+  }, []);
+
+  if (loading) {
+    return (
+        <div className="space-y-6">
+            <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Student Roster</CardTitle>
+                    <CardDescription>View, search, and manage all student records.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center p-12">Loading students...</div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
+
+  return <StudentListClient students={students} classes={classes} />;
 }
