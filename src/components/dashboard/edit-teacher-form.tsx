@@ -77,6 +77,13 @@ export function EditTeacherForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+             <FormItem>
+                <FormLabel>Staff ID</FormLabel>
+                <FormControl>
+                    <Input readOnly value={teacher.staffId} disabled />
+                </FormControl>
+                <FormDescription>Staff ID cannot be changed after creation.</FormDescription>
+            </FormItem>
             <FormField
             control={form.control}
             name="name"
