@@ -11,9 +11,9 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Student, Class, Fee } from '@/lib/types';
-import { Search } from 'lucide-react';
+import { Search, Edit, Loader2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
+import { collection, getDocs, doc, updateDoc } from 'firebase/firestore';
 import {
   Table,
   TableBody,
@@ -22,39 +22,52 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
-import { Printer } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { format } from 'date-fns';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
+  DialogClose,
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 
 interface StudentFinancials extends Student {
     className?: string;
-    feePaid: number;
-    feeBalance: number;
-    invoiceId: string;
+    totalBilled: number;
+    totalPaid: number;
+    balance: number;
+    feeRecordId?: string;
 }
 
-
-function StudentListClient({ students: initialStudents, classes, fees }: { students: Student[], classes: Class[], fees: Fee[] }) {
+function StudentListClient({ students: initialStudents, classes, fees: initialFees }: { students: Student[], classes: Class[], fees: Fee[] }) {
   const [searchTerm, setSearchTerm] = React.useState('');
+  const [isModalOpen, setIsModalOpen] = React.useState(false);
+  const [editingStudent, setEditingStudent] = React.useState<StudentFinancials | null>(null);
+  const [currentFees, setCurrentFees] = React.useState(initialFees);
+  const [isLoading, setIsLoading] = React.useState(false);
   const { toast } = useToast();
 
   const studentsWithFinancials = React.useMemo(() => {
     return initialStudents.map(student => {
       const studentClass = classes.find(c => c.id === student.classId);
-      const studentFee = fees.find(f => f.studentId === student.id);
+      // Assuming one fee record per student for simplicity
+      const studentFee = currentFees.find(f => f.studentId === student.id);
       
       return {
           ...student,
           className: `${studentClass?.name || 'N/A'} ${studentClass?.stream || ''}`.trim(),
-          feePaid: studentFee?.paidAmount || 0,
-          feeBalance: studentFee?.balance || 0,
-          invoiceId: studentFee?.invoiceId || 'N/A',
+          totalBilled: studentFee?.amount || 0,
+          totalPaid: studentFee?.paidAmount || 0,
+          balance: studentFee?.balance || 0,
+          feeRecordId: studentFee?.invoiceId,
       }
     })
-  }, [initialStudents, classes, fees]);
+  }, [initialStudents, classes, currentFees]);
   
   const filteredStudents = React.useMemo(() => {
     if (!searchTerm) {
@@ -66,73 +79,66 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
     );
   }, [searchTerm, studentsWithFinancials]);
 
-  const groupedStudents = React.useMemo(() => {
-    const sortedStudents = [...filteredStudents].sort((a,b) => a.admissionNumber.localeCompare(b.admissionNumber));
-    return sortedStudents.reduce((acc, student) => {
-        const className = student.className || 'Unassigned';
-        if (!acc[className]) {
-            acc[className] = [];
-        }
-        acc[className].push(student);
-        return acc;
-    }, {} as Record<string, StudentFinancials[]>);
-  }, [filteredStudents]);
-
-  const handlePrint = async (student: StudentFinancials) => {
-    const fee = fees.find(f => f.invoiceId === student.invoiceId);
-    if (!student || !fee) {
-        toast({ variant: 'destructive', title: 'Error', description: 'Could not find student or fee details.' });
+  const handleEditClick = (student: StudentFinancials) => {
+    setEditingStudent(student);
+    setIsModalOpen(true);
+  };
+  
+  const handleSaveChanges = async () => {
+    if (!editingStudent || !editingStudent.feeRecordId) {
+        toast({ variant: 'destructive', title: 'Error', description: 'No student or fee record selected for update.' });
         return;
     }
+    setIsLoading(true);
 
-    const { jsPDF } = await import('jspdf');
-    await import('jspdf-autotable');
+    try {
+        const feeRef = doc(db, 'fees', editingStudent.feeRecordId);
+        
+        if (editingStudent.totalPaid > editingStudent.totalBilled) {
+            toast({ variant: 'destructive', title: 'Invalid amount', description: 'Paid amount cannot be greater than the total amount billed.' });
+            setIsLoading(false);
+            return;
+        }
 
-    const doc = new jsPDF();
-    
-    doc.setFontSize(18);
-    doc.text('GITS HIGH SCHOOL', 14, 22);
-    doc.setFontSize(12);
-    doc.text('FEE INVOICE', 14, 30);
-    
-    doc.setFontSize(10);
-    doc.text(`Student: ${student.name}`, 14, 40);
-    doc.text(`Admission No: ${student.admissionNumber}`, 14, 45);
-    doc.text(`Class: ${student.className}`, 14, 50);
+        const newBalance = editingStudent.totalBilled - editingStudent.totalPaid;
+        const newStatus = newBalance <= 0 ? 'Paid' : (editingStudent.totalPaid > 0 ? 'Partial' : 'Unpaid');
 
-    doc.text(`Invoice ID: ${fee.invoiceId}`, 150, 40);
-    doc.text(`Date: ${format(new Date(), 'PPP')}`, 150, 45);
-    doc.text(`Due Date: ${format(new Date(fee.dueDate), 'PPP')}`, 150, 50);
+        await updateDoc(feeRef, {
+            amount: editingStudent.totalBilled,
+            paidAmount: editingStudent.totalPaid,
+            balance: newBalance,
+            status: newStatus,
+        });
 
+        // Update local state to reflect changes immediately
+        setCurrentFees(currentFees.map(fee => 
+            fee.invoiceId === editingStudent.feeRecordId 
+            ? { ...fee, amount: editingStudent.totalBilled, paidAmount: editingStudent.totalPaid, balance: newBalance, status: newStatus }
+            : fee
+        ));
 
-    (doc as any).autoTable({
-        startY: 60,
-        head: [['Description', 'Amount (KES)']],
-        body: [
-            ['School Fees', fee.amount.toLocaleString()],
-        ],
-        foot: [
-            ['Total Amount Due', fee.amount.toLocaleString()],
-            ['Amount Paid', fee.paidAmount.toLocaleString()],
-            [{ content: 'Balance Due', styles: { fontStyle: 'bold' } }, { content: fee.balance.toLocaleString(), styles: { fontStyle: 'bold' } }],
-        ],
-        theme: 'striped',
-        headStyles: { fillColor: [22, 160, 133] },
-    });
-    
-    doc.save(`Invoice-${fee.invoiceId}-${student.admissionNumber}.pdf`);
-    toast({ title: 'Invoice Downloading', description: 'Your PDF invoice has started downloading.' });
-  }
+        toast({ title: 'Success', description: 'Student account updated successfully.' });
+        setIsModalOpen(false);
+        setEditingStudent(null);
+    } catch (error) {
+        console.error("Failed to update student account:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred.';
+        toast({ variant: 'destructive', title: 'Update Failed', description: errorMessage });
+    } finally {
+        setIsLoading(false);
+    }
+  };
+
 
   return (
     <div className="space-y-6">
-      <h1 className="font-headline text-3xl font-bold">Student Financials</h1>
+      <h1 className="font-headline text-3xl font-bold">Student Accounts</h1>
       <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
-              <CardTitle>Student Accounts</CardTitle>
-              <CardDescription>View financial summaries for all students, class by class.</CardDescription>
+              <CardTitle>All Student Accounts</CardTitle>
+              <CardDescription>View and manage financial details for all students.</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -147,55 +153,95 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
               onChange={(e) => setSearchTerm(e.target.value)}
             />
           </div>
-          <div className='space-y-6'>
-            {Object.entries(groupedStudents).sort(([a], [b]) => a.localeCompare(b)).map(([className, students]) => (
-                <div key={className}>
-                    <h3 className="text-lg font-semibold mb-2">{className}</h3>
-                    <div className="border rounded-lg">
-                        <Table>
-                            <TableHeader>
-                                <TableRow>
-                                <TableHead>Adm No.</TableHead>
-                                <TableHead>Name</TableHead>
-                                <TableHead>Invoice ID</TableHead>
-                                <TableHead className="text-right">Fee Paid (KES)</TableHead>
-                                <TableHead className="text-right">Fee Balance (KES)</TableHead>
-                                <TableHead className="text-center">Actions</TableHead>
-                                </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {students.map((student) => (
-                                <TableRow key={student.id}>
-                                    <TableCell>{student.admissionNumber}</TableCell>
-                                    <TableCell className="font-medium">{student.name}</TableCell>
-                                    <TableCell>
-                                        <Badge variant="secondary">{student.invoiceId}</Badge>
-                                    </TableCell>
-                                    <TableCell className="text-right font-medium">{student.feePaid.toLocaleString()}</TableCell>
-                                    <TableCell className={cn('text-right font-bold', student.feeBalance > 0 ? 'text-destructive' : 'text-primary')}>
-                                        {student.feeBalance.toLocaleString()}
-                                    </TableCell>
-                                     <TableCell className="text-center">
-                                        <Button variant="outline" size="sm" onClick={() => handlePrint(student)} disabled={student.invoiceId === 'N/A'}>
-                                            <Printer className="mr-2 h-4 w-4" />
-                                            Invoice
-                                        </Button>
-                                    </TableCell>
-                                </TableRow>
-                                ))}
-                            </TableBody>
-                        </Table>
-                    </div>
-                </div>
-            ))}
-            {Object.keys(groupedStudents).length === 0 && (
+          <div className="border rounded-lg">
+            <Table>
+                <TableHeader>
+                    <TableRow>
+                    <TableHead>Adm No.</TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Class</TableHead>
+                    <TableHead className="text-right">Total Billed (KES)</TableHead>
+                    <TableHead className="text-right">Total Paid (KES)</TableHead>
+                    <TableHead className="text-right">Balance (KES)</TableHead>
+                    <TableHead className="text-center">Actions</TableHead>
+                    </TableRow>
+                </TableHeader>
+                <TableBody>
+                    {filteredStudents.sort((a,b) => a.admissionNumber.localeCompare(b.admissionNumber)).map((student) => (
+                    <TableRow key={student.id}>
+                        <TableCell>{student.admissionNumber}</TableCell>
+                        <TableCell className="font-medium">{student.name}</TableCell>
+                        <TableCell>{student.className}</TableCell>
+                        <TableCell className="text-right">{student.totalBilled.toLocaleString()}</TableCell>
+                        <TableCell className="text-right font-medium text-green-600">{student.totalPaid.toLocaleString()}</TableCell>
+                        <TableCell className={cn('text-right font-bold', student.balance > 0 ? 'text-destructive' : 'text-primary')}>
+                            {student.balance.toLocaleString()}
+                        </TableCell>
+                         <TableCell className="text-center">
+                            <Button variant="outline" size="sm" onClick={() => handleEditClick(student)} disabled={!student.feeRecordId}>
+                                <Edit className="mr-2 h-4 w-4" />
+                                Edit
+                            </Button>
+                        </TableCell>
+                    </TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+          </div>
+           {filteredStudents.length === 0 && (
                 <div className="text-center text-muted-foreground py-12">
                     <p>No students found matching your search.</p>
                 </div>
             )}
-          </div>
         </CardContent>
       </Card>
+        {editingStudent && (
+            <Dialog open={isModalOpen} onOpenChange={setIsModalOpen}>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Account for {editingStudent.name}</DialogTitle>
+                        <DialogDescription>
+                            Update the total amount billed and the total amount paid for this student. The balance will be recalculated automatically.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="total-billed" className="text-right">
+                                Total Billed
+                            </Label>
+                            <Input
+                                id="total-billed"
+                                type="number"
+                                value={editingStudent.totalBilled}
+                                onChange={(e) => setEditingStudent({ ...editingStudent, totalBilled: Number(e.target.value) })}
+                                className="col-span-3"
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="total-paid" className="text-right">
+                                Total Paid
+                            </Label>
+                            <Input
+                                id="total-paid"
+                                type="number"
+                                value={editingStudent.totalPaid}
+                                onChange={(e) => setEditingStudent({ ...editingStudent, totalPaid: Number(e.target.value) })}
+                                className="col-span-3"
+                            />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button" variant="outline">Cancel</Button>
+                        </DialogClose>
+                        <Button onClick={handleSaveChanges} disabled={isLoading}>
+                             {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                            Save Changes
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+        )}
     </div>
   );
 }
@@ -233,11 +279,11 @@ export default function AccountantStudentsPage() {
   if (loading) {
     return (
         <div className="space-y-6">
-            <h1 className="font-headline text-3xl font-bold">Student Financials</h1>
+            <h1 className="font-headline text-3xl font-bold">Student Accounts</h1>
             <Card>
                 <CardHeader>
-                    <CardTitle>Student Accounts</CardTitle>
-                    <CardDescription>View financial summaries for all students, class by class.</CardDescription>
+                    <CardTitle>All Student Accounts</CardTitle>
+                    <CardDescription>View and manage financial details for all students.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="text-center p-12">Loading student financials...</div>

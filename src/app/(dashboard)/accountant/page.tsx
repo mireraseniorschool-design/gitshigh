@@ -16,8 +16,6 @@ import { FileText, Banknote, Landmark, Scale, ArrowRight, Users, Book } from 'lu
 import { db } from '@/lib/firebase';
 import { collection, getDocs, doc, getDoc, updateDoc, writeBatch } from 'firebase/firestore';
 import type { Fee, Student, Payment, Class } from '@/lib/types';
-import { FeeInvoicesTable } from '@/components/dashboard/fee-invoices-table';
-import { FeeBalancesTable } from '@/components/dashboard/fee-balances-table';
 import { PaymentsTable } from '@/components/dashboard/payments-table';
 import { LogPaymentForm } from '@/components/dashboard/log-payment-form';
 import { Button } from '@/components/ui/button';
@@ -49,11 +47,9 @@ export default async function AccountantPage() {
   async function handleLogPayment(data: { studentId: string; amount: number; }) {
     'use server';
     
-    // In a real application, you would have a more robust way of finding the correct invoice
-    // to apply payment to. For this demo, we'll find any invoice for the student that is not fully paid.
     const studentFees = (await getDocs(collection(db, 'fees')))
         .docs.map(doc => doc.data() as Fee)
-        .filter(fee => fee.studentId === data.studentId && fee.status !== 'Paid');
+        .filter(fee => fee.studentId === data.studentId);
     
     if (studentFees.length > 0) {
         const feeDocRef = doc(db, 'fees', studentFees[0].invoiceId);
@@ -84,7 +80,7 @@ export default async function AccountantPage() {
         
         return { success: true };
     }
-    return { success: false, message: 'Could not find an open invoice for the student.' };
+    return { success: false, message: 'Could not find a fee record for the student.' };
   }
 
   return (
@@ -93,7 +89,7 @@ export default async function AccountantPage() {
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Invoiced</CardTitle>
+            <CardTitle className="text-sm font-medium">Total Billed</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -139,10 +135,10 @@ export default async function AccountantPage() {
           </CardHeader>
           <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Button asChild variant="outline" className="h-20 justify-between">
-                <Link href="/accountant/invoices">
+                <Link href="/accountant/students">
                   <div className="flex items-center gap-4">
-                    <FileText className="h-8 w-8 text-primary" />
-                    <span className="font-semibold text-lg">Manage Invoices</span>
+                    <Users className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Student Accounts</span>
                   </div>
                   <ArrowRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
@@ -156,11 +152,11 @@ export default async function AccountantPage() {
                   <ArrowRight className="h-5 w-5 text-muted-foreground" />
                 </Link>
               </Button>
-              <Button asChild variant="outline" className="h-20 justify-between">
-                <Link href="/accountant/balances">
+               <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/classlist">
                   <div className="flex items-center gap-4">
-                    <Scale className="h-8 w-8 text-primary" />
-                    <span className="font-semibold text-lg">Student Balances</span>
+                    <List className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Print Class Lists</span>
                   </div>
                   <ArrowRight className="h-5 w-5 text-muted-foreground" />
                 </Link>

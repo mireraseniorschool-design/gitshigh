@@ -1,3 +1,4 @@
+
 'use client';
 
 import Link from 'next/link';
@@ -63,10 +64,8 @@ const teacherLinks = [
 
 const accountantLinks = [
     { href: '/accountant', label: 'Finance', icon: LayoutDashboard },
-    { href: '/accountant/invoices', label: 'Invoices', icon: FileText },
-    { href: '/accountant/payments', label: 'Payments', icon: Banknote },
-    { href: '/accountant/balances', label: 'Fee Balances', icon: Scale },
     { href: '/accountant/students', label: 'Student Accounts', icon: Users },
+    { href: '/accountant/payments', label: 'Payments', icon: Banknote },
     { href: '/classlist', label: 'Class Lists', icon: List },
 ];
 
