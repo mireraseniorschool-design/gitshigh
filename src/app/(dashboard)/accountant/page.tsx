@@ -49,19 +49,22 @@ export default async function AccountantPage() {
   async function handleLogPayment(data: { studentId: string; amount: number; }) {
     'use server';
     
-    const feesCollectionRef = collection(db, 'fees');
-    // This logic assumes one major invoice per student for simplicity.
-    // A real system would need to handle multiple invoices.
-    const feeDocSnap = await getDoc(doc(db, 'fees', `inv-${data.studentId.split('-')[1]}`));
-
-    if (feeDocSnap.exists()) {
+    // In a real application, you would have a more robust way of finding the correct invoice
+    // to apply payment to. For this demo, we'll find any invoice for the student that is not fully paid.
+    const studentFees = (await getDocs(collection(db, 'fees')))
+        .docs.map(doc => doc.data() as Fee)
+        .filter(fee => fee.studentId === data.studentId && fee.status !== 'Paid');
+    
+    if (studentFees.length > 0) {
+        const feeDocRef = doc(db, 'fees', studentFees[0].invoiceId);
+        
         const batch = writeBatch(db);
-        const feeData = feeDocSnap.data() as Fee;
+        const feeData = studentFees[0];
         const newPaidAmount = feeData.paidAmount + data.amount;
         const newBalance = feeData.amount - newPaidAmount;
         const newStatus = newBalance <= 0 ? 'Paid' : 'Partial';
 
-        batch.update(feeDocSnap.ref, {
+        batch.update(feeDocRef, {
             paidAmount: newPaidAmount,
             balance: newBalance,
             status: newStatus
@@ -78,10 +81,10 @@ export default async function AccountantPage() {
         });
 
         await batch.commit();
-
+        
         return { success: true };
     }
-    return { success: false, message: 'Could not find an invoice for the student.' };
+    return { success: false, message: 'Could not find an open invoice for the student.' };
   }
 
   return (
