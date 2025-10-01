@@ -10,7 +10,6 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MoreHorizontal } from 'lucide-react';
 import {
@@ -20,8 +19,14 @@ import {
     DropdownMenuLabel,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import Link from 'next/link';
 
-export function StudentsTable({ students }: { students: Student[] }) {
+// Extends Student with an optional className
+interface StudentWithClass extends Student {
+    className?: string;
+}
+
+export function StudentsTable({ students, basePath = "/admin/students" }: { students: StudentWithClass[], basePath?: string }) {
   return (
     <Table>
       <TableHeader>
@@ -50,7 +55,7 @@ export function StudentsTable({ students }: { students: Student[] }) {
             <TableCell className="font-medium">{student.name}</TableCell>
             <TableCell>{student.admissionNumber}</TableCell>
             <TableCell className="hidden md:table-cell">
-              {student.classId}
+              {student.className || student.classId}
             </TableCell>
             <TableCell className="hidden md:table-cell">
               {student.guardianName}
@@ -65,7 +70,9 @@ export function StudentsTable({ students }: { students: Student[] }) {
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                  <DropdownMenuItem>Edit</DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href={`${basePath}/${student.id}/edit`}>Edit</Link>
+                  </DropdownMenuItem>
                   <DropdownMenuItem>View Details</DropdownMenuItem>
                   <DropdownMenuItem className="text-destructive">Delete</DropdownMenuItem>
                 </DropdownMenuContent>
