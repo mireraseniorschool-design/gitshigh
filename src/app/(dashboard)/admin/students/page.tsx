@@ -15,6 +15,7 @@ import { Search, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
+// This is a new Client Component to handle state and user interactions.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -85,12 +86,18 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
                     </div>
                 </div>
             ))}
+            {Object.keys(groupedStudents).length === 0 && (
+                <div className="text-center text-muted-foreground py-12">
+                    <p>No students found matching your search.</p>
+                </div>
+            )}
           </div>
         </CardContent>
       </Card>
   )
 }
 
+// The main page component is now a Server Component that fetches data.
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
@@ -101,18 +108,21 @@ async function getData() {
     const classDocs = await getDocs(collection(db, 'classes'));
     const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
     
+    // Sort students by admission number by default
+    students.sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
+
     return { students, classes };
 }
 
-async function AdminStudentsPage() {
+// This is the async Server Component for the page.
+export default async function AdminStudentsPage() {
   const { students, classes } = await getData();
 
   return (
     <div className="space-y-6">
       <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
+      {/* The client component is rendered here with the fetched data */}
       <StudentListClient students={students} classes={classes} />
     </div>
   );
 }
-
-export default AdminStudentsPage;
