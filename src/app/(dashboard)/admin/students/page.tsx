@@ -1,8 +1,5 @@
 
-// This is the Client Component that will handle all user interactions.
-'use client';
-
-import React from 'react';
+// This is the async Server Component for the page. It fetches data and passes it to the Client Component.
 import {
   Card,
   CardContent,
@@ -18,6 +15,11 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+
+// This is the Client Component that will handle all user interactions.
+// It is defined in the same file but will be treated as a separate module by Next.js.
+'use client';
+import React from 'react';
 
 
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
@@ -101,7 +103,6 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
   )
 }
 
-// This is the async Server Component for the page. It fetches data and passes it to the Client Component.
 async function getData() {
     const studentDocs = await getDocs(collection(db, 'students'));
     const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
