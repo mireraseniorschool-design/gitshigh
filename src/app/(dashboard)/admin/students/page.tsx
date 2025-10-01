@@ -14,13 +14,13 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
+import React from 'react';
 
 // This is the Client Component that will handle all user interactions.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   'use client';
 
   const [searchTerm, setSearchTerm] = React.useState('');
-  const React = require('react');
 
   const studentsWithClass = React.useMemo(() => initialStudents.map(student => {
     const studentClass = classes.find(c => c.id === student.classId);
