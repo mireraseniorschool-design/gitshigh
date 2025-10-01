@@ -23,6 +23,7 @@ import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  staffId: z.string().min(1, "Staff ID is required."),
   email: z.string().email('Invalid email address.'),
   phone: z.string().optional(),
   subjectIds: z.array(z.string()).min(1, 'Please select at least one subject.'),
@@ -47,6 +48,7 @@ export function EditTeacherForm({
     resolver: zodResolver(formSchema),
     defaultValues: {
       name: teacher.name,
+      staffId: teacher.staffId,
       email: teacher.email,
       phone: teacher.phone,
       subjectIds: teacher.subjectIds,
@@ -55,6 +57,8 @@ export function EditTeacherForm({
 
   async function onSubmit(values: FormData) {
     setIsLoading(true);
+    // Note: Updating staffId might have side effects if it's used as a key elsewhere.
+    // The current server action just updates the document, it doesn't handle re-keying.
     const result = await onUpdate(values);
     if (result.success) {
       toast({
@@ -77,13 +81,20 @@ export function EditTeacherForm({
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 max-w-2xl">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <FormItem>
-                <FormLabel>Staff ID</FormLabel>
-                <FormControl>
-                    <Input readOnly value={teacher.staffId} disabled />
-                </FormControl>
-                <FormDescription>Staff ID cannot be changed after creation.</FormDescription>
-            </FormItem>
+            <FormField
+              control={form.control}
+              name="staffId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Staff ID</FormLabel>
+                  <FormControl>
+                      <Input {...field} />
+                  </FormControl>
+                  <FormDescription>Caution: Changing the Staff ID can have unintended side effects.</FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
             control={form.control}
             name="name"

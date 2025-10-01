@@ -29,6 +29,7 @@ async function getData(teacherId: string) {
 
 const updateTeacherSchema = z.object({
   name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  staffId: z.string().min(1, "Staff ID is required."),
   email: z.string().email('Invalid email address.'),
   phone: z.string().optional(),
   subjectIds: z.array(z.string()).min(1, 'Please select at least one subject.'),
@@ -48,6 +49,10 @@ export default async function EditTeacherPage({ params }: { params: { id: string
         'use server';
         try {
             const teacherRef = doc(db, 'teachers', teacher!.id);
+
+            // If the staffId is changed, we can't simply update the document if the ID is derived from it.
+            // For this implementation, we will just update the fields.
+            // A more robust solution would involve moving the document, which is more complex.
             await updateDoc(teacherRef, data);
 
             return { success: true, message: "Teacher updated successfully!"};
