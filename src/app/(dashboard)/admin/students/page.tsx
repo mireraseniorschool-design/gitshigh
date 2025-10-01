@@ -15,8 +15,6 @@ import { Search, PlusCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 
-
-// Let's create a client component to handle the filtering.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -57,7 +55,7 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
           <div className="flex justify-between items-start">
             <div>
               <CardTitle>Student Roster</CardTitle>
-              <CardDescription>View, search, and manage student records.</CardDescription>
+              <CardDescription>View, search, and manage all student records.</CardDescription>
             </div>
             <Button asChild>
               <Link href="/admin/students/add">
@@ -92,10 +90,6 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
       </Card>
   )
 }
-
-// NOTE: This structure is slightly unconventional but necessary to resolve the async Client Component error.
-// The actual default export is a server component defined below the client one.
-// In a typical refactor, this async data fetching would happen in a parent Server Component.
 
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
