@@ -1,5 +1,7 @@
 
-// This is the async Server Component for the page. It fetches data and passes it to the Client Component.
+'use client';
+
+import React from 'react';
 import {
   Card,
   CardContent,
@@ -15,12 +17,6 @@ import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
-
-// This is the Client Component that will handle all user interactions.
-// It is defined in the same file but will be treated as a separate module by Next.js.
-'use client';
-import React from 'react';
-
 
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   const [searchTerm, setSearchTerm] = React.useState('');
@@ -57,7 +53,9 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
   }, [filteredStudents]);
 
   return (
-     <Card>
+    <div className="space-y-6">
+      <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
+      <Card>
         <CardHeader>
           <div className="flex justify-between items-start">
             <div>
@@ -100,30 +98,53 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
           </div>
         </CardContent>
       </Card>
-  )
-}
-
-async function getData() {
-    const studentDocs = await getDocs(collection(db, 'students'));
-    const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
-
-    const classDocs = await getDocs(collection(db, 'classes'));
-    const classes = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
-    
-    // Sort students by admission number by default
-    students.sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
-
-    return { students, classes };
-}
-
-export default async function AdminStudentsPage() {
-  const { students, classes } = await getData();
-
-  return (
-    <div className="space-y-6">
-      <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
-      {/* The client component is rendered here with the fetched data */}
-      <StudentListClient students={students} classes={classes} />
     </div>
   );
+}
+
+export default function AdminStudentsPage() {
+  const [students, setStudents] = React.useState<Student[]>([]);
+  const [classes, setClasses] = React.useState<Class[]>([]);
+  const [loading, setLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    async function getData() {
+      try {
+        const studentDocs = await getDocs(collection(db, 'students'));
+        const studentsData = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
+
+        const classDocs = await getDocs(collection(db, 'classes'));
+        const classesData = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
+        
+        studentsData.sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
+
+        setStudents(studentsData);
+        setClasses(classesData);
+      } catch (error) {
+        console.error("Failed to fetch data:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    getData();
+  }, []);
+
+  if (loading) {
+    return (
+        <div className="space-y-6">
+            <h1 className="font-headline text-3xl font-bold">Manage Students</h1>
+            <Card>
+                <CardHeader>
+                    <CardTitle>Student Roster</CardTitle>
+                    <CardDescription>View, search, and manage all student records.</CardDescription>
+                </CardHeader>
+                <CardContent>
+                    <div className="text-center p-12">Loading students...</div>
+                </CardContent>
+            </Card>
+        </div>
+    );
+  }
+
+  return <StudentListClient students={students} classes={classes} />;
 }
