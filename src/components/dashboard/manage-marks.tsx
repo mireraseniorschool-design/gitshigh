@@ -86,15 +86,17 @@ export function ManageMarks({
         .map(student => {
             const mark = relevantMarks.find(m => m.studentId === student.id);
             return {
-                markId: mark?.id || `new-${student.id}`,
+                markId: mark?.id || `new-${student.id}`, // Keep a unique ID placeholder
                 studentName: student.name,
                 studentId: student.id,
                 score: mark?.score ?? 0,
             };
-        })
-        .filter(sm => sm.markId.startsWith('new-') === false); // Only show students who already have a mark
+        });
 
-      replace(studentMarksForForm.map(m => ({ markId: m.markId, score: m.score, studentId: m.studentId, studentName: m.studentName })));
+      // Filter out marks that are not yet created and we want to edit.
+      const editableMarks = studentMarksForForm.filter(m => !m.markId.startsWith('new-'));
+      
+      replace(editableMarks.map(m => ({ markId: m.markId, score: m.score, studentId: m.studentId, studentName: m.studentName })));
       setIsFiltering(false);
     } else {
       replace([]);
@@ -103,7 +105,8 @@ export function ManageMarks({
   
   const studentData = useMemo(() => {
      return fields.map(field => {
-         const student = students.find(s => initialMarks.find(im => im.id === field.markId)?.studentId === s.id);
+         const mark = initialMarks.find(im => im.id === field.markId);
+         const student = students.find(s => s.id === mark?.studentId);
          return {
              ...field,
              studentName: student?.name || 'Unknown',
