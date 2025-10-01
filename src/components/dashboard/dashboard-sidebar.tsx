@@ -43,10 +43,12 @@ const adminLinks = [
 ];
 
 const deanLinks = [
-  { href: '/dean', label: 'Academics', icon: LayoutDashboard },
-  { href: '/dean/students', label: 'Students', icon: Users },
-  { href: '/dean/exams', label: 'Exams & Marks', icon: GraduationCap },
-  { href: '/dean/analysis', label: 'Analysis', icon: Presentation },
+    { href: '/dean', label: 'Academics', icon: LayoutDashboard },
+    { href: '/dean/students', label: 'Students', icon: Users },
+    { href: '/dean/teachers', label: 'Teachers', icon: User },
+    { href: '/dean/classes', label: 'Classes', icon: Book },
+    { href: '/dean/exams', label: 'Exams & Marks', icon: GraduationCap },
+    { href: '/dean/analysis', label: 'Analysis', icon: Presentation },
 ];
 
 const teacherLinks = [
@@ -56,10 +58,13 @@ const teacherLinks = [
 ];
 
 const accountantLinks = [
-  { href: '/accountant', label: 'Finance', icon: LayoutDashboard },
-  { href: '/accountant/invoices', label: 'Invoices', icon: FileText },
-  { href: '/accountant/payments', label: 'Payments', icon: Banknote },
-  { href: '/accountant/balances', label: 'Fee Balances', icon: Presentation },
+    { href: '/accountant', label: 'Finance', icon: LayoutDashboard },
+    { href: '/accountant/students', label: 'Students', icon: Users },
+    { href: '/accountant/teachers', label: 'Teachers', icon: User },
+    { href: '/accountant/classes', label: 'Classes', icon: Book },
+    { href: '/accountant/invoices', label: 'Invoices', icon: FileText },
+    { href: '/accountant/payments', label: 'Payments', icon: Banknote },
+    { href: '/accountant/balances', label: 'Fee Balances', icon: Presentation },
 ];
 
 export function DashboardSidebar() {
