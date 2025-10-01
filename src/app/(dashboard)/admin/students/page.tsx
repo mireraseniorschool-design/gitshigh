@@ -15,15 +15,14 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
-// This is a new Client Component to handle state and user interactions.
+// This is the Client Component that will handle all user interactions.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   'use client';
 
-  const { useMemo, useState } = require('react');
+  const [searchTerm, setSearchTerm] = React.useState('');
+  const React = require('react');
 
-  const [searchTerm, setSearchTerm] = useState('');
-
-  const studentsWithClass = useMemo(() => initialStudents.map(student => {
+  const studentsWithClass = React.useMemo(() => initialStudents.map(student => {
     const studentClass = classes.find(c => c.id === student.classId);
     const className = studentClass?.name || 'N/A';
     const stream = studentClass?.stream || '';
@@ -33,7 +32,7 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
     }
   }), [initialStudents, classes]);
   
-  const filteredStudents = useMemo(() => {
+  const filteredStudents = React.useMemo(() => {
     if (!searchTerm) {
       return studentsWithClass;
     }
@@ -43,7 +42,7 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
     );
   }, [searchTerm, studentsWithClass]);
 
-  const groupedStudents = useMemo(() => {
+  const groupedStudents = React.useMemo(() => {
     return filteredStudents.reduce((acc, student) => {
         const className = student.className || 'Unassigned';
         if (!acc[className]) {
@@ -101,7 +100,7 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
   )
 }
 
-// The main page component is now a Server Component that fetches data.
+// This is the async Server Component for the page. It fetches data and passes it to the Client Component.
 async function getData() {
     const studentDocs = await getDocs(collection(db, 'students'));
     const students = studentDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Student));
@@ -115,7 +114,6 @@ async function getData() {
     return { students, classes };
 }
 
-// This is the async Server Component for the page.
 export default async function AdminStudentsPage() {
   const { students, classes } = await getData();
 
