@@ -27,13 +27,15 @@ import {
   Cog,
   Bot,
   Edit,
-  Scale
+  Scale,
+  List
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from '../ui/separator';
 
 const commonLinks = [
   { href: '/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+  { href: '/classlist', label: 'Class Lists', icon: List },
 ];
 
 const adminLinks = [
@@ -41,6 +43,7 @@ const adminLinks = [
   { href: '/admin/students', label: 'Students', icon: Users },
   { href: '/admin/teachers', label: 'Teachers', icon: User },
   { href: '/admin/classes', label: 'Classes', icon: Book },
+  { href: '/classlist', label: 'Class Lists', icon: List },
 ];
 
 const deanLinks = [
@@ -48,12 +51,14 @@ const deanLinks = [
     { href: '/dean/students', label: 'Students', icon: Users },
     { href: '/dean/teachers', label: 'Teachers', icon: User },
     { href: '/dean/classes', label: 'Classes', icon: Book },
+    { href: '/classlist', label: 'Class Lists', icon: List },
 ];
 
 const teacherLinks = [
   { href: '/teacher', label: 'Attendance', icon: ClipboardCheck },
   { href: '/teacher/marks', label: 'Enter Marks', icon: PenSquare },
   { href: '/teacher/marks/manage', label: 'Manage Marks', icon: Edit },
+  { href: '/classlist', label: 'Class Lists', icon: List },
 ];
 
 const accountantLinks = [
@@ -62,7 +67,7 @@ const accountantLinks = [
     { href: '/accountant/payments', label: 'Payments', icon: Banknote },
     { href: '/accountant/balances', label: 'Fee Balances', icon: Scale },
     { href: '/accountant/students', label: 'Student Accounts', icon: Users },
-    { href: '/accountant/classes', label: 'Classes', icon: Book },
+    { href: '/classlist', label: 'Class Lists', icon: List },
 ];
 
 export function DashboardSidebar() {
@@ -93,6 +98,18 @@ export function DashboardSidebar() {
       links = adminLinks;
       roleTitle = 'Admin Portal';
   }
+  
+  if (pathname.startsWith('/classlist')) {
+    roleTitle = 'Utilities';
+    switch (role) {
+        case 'admin': links = adminLinks; break;
+        case 'dean': links = deanLinks; break;
+        case 'teacher': links = teacherLinks; break;
+        case 'accountant': links = accountantLinks; break;
+        default: links = adminLinks;
+    }
+  }
+
 
   return (
     <>
@@ -110,12 +127,9 @@ export function DashboardSidebar() {
             <SidebarMenuItem key={link.href}>
               <Link href={link.href}>
                 <SidebarMenuButton
-                  isActive={pathname === link.href || (link.href !== `/${role}` && pathname.startsWith(link.href))}
+                  isActive={pathname === link.href || (link.href !== `/${role}` && pathname.startsWith(link.href) && link.href !== '/classlist') || (link.href === '/classlist' && pathname === '/classlist')}
                   className={cn(
-                    'w-full justify-start',
-                    (pathname === link.href || (link.href !== `/${role}` && pathname.startsWith(link.href)))
-                      ? 'bg-sidebar-accent text-sidebar-accent-foreground'
-                      : 'hover:bg-sidebar-accent'
+                    'w-full justify-start'
                   )}
                   tooltip={link.label}
                 >
