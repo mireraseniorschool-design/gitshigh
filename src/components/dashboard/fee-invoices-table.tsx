@@ -12,15 +12,17 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { format } from 'date-fns';
-import { Printer, MoreHorizontal } from 'lucide-react';
+import { Printer, MoreHorizontal, Pencil } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuTrigger,
+    DropdownMenuSeparator,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export function FeeInvoicesTable({ fees, students, classes }: { fees: Fee[], students: Student[], classes: Class[] }) {
   const { toast } = useToast();
@@ -131,6 +133,13 @@ export function FeeInvoicesTable({ fees, students, classes }: { fees: Fee[], stu
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
                     <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/accountant/invoices/${fee.invoiceId}/edit`}>
+                        <Pencil className="mr-2 h-4 w-4" />
+                        Edit Invoice
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onSelect={() => handlePrint(fee)}>
                         <Printer className="mr-2 h-4 w-4" />
                         Print Invoice
