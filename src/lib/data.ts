@@ -9,11 +9,11 @@ export const users: User[] = [
 ];
 
 export const students: Student[] = [
-  { id: 'std-1', admissionNumber: 'GHS-001', name: 'Alice Johnson', classId: 'cls-1', guardianName: 'John Johnson', guardianPhone: '0712345678', avatarUrl: placeholderImages[4].imageUrl, dateOfBirth: '2008-05-10' },
-  { id: 'std-2', admissionNumber: 'GHS-002', name: 'Bob Williams', classId: 'cls-1', guardianName: 'Jane Williams', guardianPhone: '0723456789', avatarUrl: placeholderImages[5].imageUrl, dateOfBirth: '2008-03-15' },
-  { id: 'std-3', admissionNumber: 'GHS-003', name: 'Charlie Brown', classId: 'cls-2', guardianName: 'Chris Brown', guardianPhone: '0734567890', avatarUrl: placeholderImages[6].imageUrl, dateOfBirth: '2007-11-20' },
-  { id: 'std-4', admissionNumber: 'GHS-004', name: 'Diana Miller', classId: 'cls-3', guardianName: 'David Miller', guardianPhone: '0745678901', avatarUrl: placeholderImages[7].imageUrl, dateOfBirth: '2009-01-30' },
-  { id: 'std-5', admissionNumber: 'GHS-005', name: 'Ethan Davis', classId: 'cls-2', guardianName: 'Emily Davis', guardianPhone: '0756789012', avatarUrl: placeholderImages[8].imageUrl, dateOfBirth: '2007-09-05' },
+  { id: 'std-1', admissionNumber: '3972', name: 'Alice Johnson', classId: 'cls-1', guardianName: 'John Johnson', guardianPhone: '0712345678', avatarUrl: placeholderImages[4].imageUrl, dateOfBirth: '2008-05-10' },
+  { id: 'std-2', admissionNumber: '3973', name: 'Bob Williams', classId: 'cls-1', guardianName: 'Jane Williams', guardianPhone: '0723456789', avatarUrl: placeholderImages[5].imageUrl, dateOfBirth: '2008-03-15' },
+  { id: 'std-3', admissionNumber: '3974', name: 'Charlie Brown', classId: 'cls-2', guardianName: 'Chris Brown', guardianPhone: '0734567890', avatarUrl: placeholderImages[6].imageUrl, dateOfBirth: '2007-11-20' },
+  { id: 'std-4', admissionNumber: '3975', name: 'Diana Miller', classId: 'cls-3', guardianName: 'David Miller', guardianPhone: '0745678901', avatarUrl: placeholderImages[7].imageUrl, dateOfBirth: '2009-01-30' },
+  { id: 'std-5', admissionNumber: '3976', name: 'Ethan Davis', classId: 'cls-2', guardianName: 'Emily Davis', guardianPhone: '0756789012', avatarUrl: placeholderImages[8].imageUrl, dateOfBirth: '2007-09-05' },
   { "id": "std-4710", "admissionNumber": "4710", "name": "NJAMBI CLEMENCY GIFT", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4710/200/300", "dateOfBirth": "2009-01-01" },
   { "id": "std-4717", "admissionNumber": "4717", "name": "LUSIRE ELIZABETH NJOKI", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4717/200/300", "dateOfBirth": "2009-01-01" },
   { "id": "std-4496", "admissionNumber": "4496", "name": "KASHU TERESIA NAIRESIAE", "classId": "cls-4", "guardianName": "", "guardianPhone": "", "avatarUrl": "https://picsum.photos/seed/4496/200/300", "dateOfBirth": "2009-01-01" },
@@ -354,5 +354,7 @@ export const payments: Payment[] = [
     { paymentId: 'pay-3', studentId: 'std-2', invoiceId: 'inv-002', amount: 25000, date: '2024-08-01T09:00:00Z' },
     { paymentId: 'pay-4', studentId: 'std-4', invoiceId: 'inv-004', amount: 48000, date: '2024-07-25T11:00:00Z' },
 ];
+
+    
 
     
