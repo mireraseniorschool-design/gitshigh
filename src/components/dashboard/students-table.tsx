@@ -1,3 +1,4 @@
+
 'use client';
 
 import type { Student } from '@/lib/types';
@@ -30,9 +31,8 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
     <Table>
       <TableHeader>
         <TableRow>
-          <TableHead>Name</TableHead>
           <TableHead>Admission No.</TableHead>
-          <TableHead className="hidden md:table-cell">Class</TableHead>
+          <TableHead>Name</TableHead>
           <TableHead className="hidden md:table-cell">Guardian</TableHead>
           <TableHead>
             <span className="sr-only">Actions</span>
@@ -42,11 +42,8 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
       <TableBody>
         {students.length > 0 ? students.map((student) => (
           <TableRow key={student.id}>
-            <TableCell className="font-medium">{student.name}</TableCell>
             <TableCell>{student.admissionNumber}</TableCell>
-            <TableCell className="hidden md:table-cell">
-              {student.className}
-            </TableCell>
+            <TableCell className="font-medium">{student.name}</TableCell>
             <TableCell className="hidden md:table-cell">
               {student.guardianName}
             </TableCell>
@@ -71,7 +68,7 @@ export function StudentsTable({ students, basePath = "/admin/students" }: { stud
           </TableRow>
         )) : (
           <TableRow>
-            <TableCell colSpan={5} className="h-24 text-center">
+            <TableCell colSpan={4} className="h-24 text-center">
               No students found.
             </TableCell>
           </TableRow>

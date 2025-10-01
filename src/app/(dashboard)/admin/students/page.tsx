@@ -18,16 +18,21 @@ import Link from 'next/link';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 
+// Extends Student with an optional className
+interface StudentWithClass extends Student {
+    className?: string;
+}
+
+
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   const [searchTerm, setSearchTerm] = React.useState('');
 
   const studentsWithClass = React.useMemo(() => initialStudents.map(student => {
     const studentClass = classes.find(c => c.id === student.classId);
-    const className = studentClass?.name || 'N/A';
-    const stream = studentClass?.stream || '';
+    const className = studentClass ? `${studentClass.name} ${studentClass.stream || ''}`.trim() : 'Unassigned';
     return {
         ...student,
-        className: `${className} ${stream}`.trim()
+        className
     }
   }), [initialStudents, classes]);
   
@@ -42,14 +47,16 @@ function StudentListClient({ students: initialStudents, classes }: { students: S
   }, [searchTerm, studentsWithClass]);
 
   const groupedStudents = React.useMemo(() => {
-    return filteredStudents.reduce((acc, student) => {
+    const sortedStudents = [...filteredStudents].sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
+    
+    return sortedStudents.reduce((acc, student) => {
         const className = student.className || 'Unassigned';
         if (!acc[className]) {
             acc[className] = [];
         }
         acc[className].push(student);
         return acc;
-    }, {} as Record<string, typeof filteredStudents>);
+    }, {} as Record<string, StudentWithClass[]>);
   }, [filteredStudents]);
 
   return (
@@ -116,8 +123,6 @@ export default function AdminStudentsPage() {
         const classDocs = await getDocs(collection(db, 'classes'));
         const classesData = classDocs.docs.map(doc => ({...doc.data(), id: doc.id } as Class));
         
-        studentsData.sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
-
         setStudents(studentsData);
         setClasses(classesData);
       } catch (error) {

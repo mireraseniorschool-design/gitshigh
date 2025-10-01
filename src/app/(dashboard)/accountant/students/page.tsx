@@ -1,3 +1,4 @@
+
 'use client';
 
 import React from 'react';
@@ -10,7 +11,6 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import type { Student, Class, Fee } from '@/lib/types';
-import { StudentsTable } from '@/components/dashboard/students-table';
 import { Search } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
@@ -22,7 +22,6 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -68,7 +67,8 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
   }, [searchTerm, studentsWithFinancials]);
 
   const groupedStudents = React.useMemo(() => {
-    return filteredStudents.reduce((acc, student) => {
+    const sortedStudents = [...filteredStudents].sort((a,b) => a.admissionNumber.localeCompare(b.admissionNumber));
+    return sortedStudents.reduce((acc, student) => {
         const className = student.className || 'Unassigned';
         if (!acc[className]) {
             acc[className] = [];
@@ -155,8 +155,8 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
                         <Table>
                             <TableHeader>
                                 <TableRow>
-                                <TableHead>Name</TableHead>
                                 <TableHead>Adm No.</TableHead>
+                                <TableHead>Name</TableHead>
                                 <TableHead>Invoice ID</TableHead>
                                 <TableHead className="text-right">Fee Paid (KES)</TableHead>
                                 <TableHead className="text-right">Fee Balance (KES)</TableHead>
@@ -166,8 +166,8 @@ function StudentListClient({ students: initialStudents, classes, fees }: { stude
                             <TableBody>
                                 {students.map((student) => (
                                 <TableRow key={student.id}>
-                                    <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell>{student.admissionNumber}</TableCell>
+                                    <TableCell className="font-medium">{student.name}</TableCell>
                                     <TableCell>
                                         <Badge variant="secondary">{student.invoiceId}</Badge>
                                     </TableCell>
@@ -218,8 +218,6 @@ export default function AccountantStudentsPage() {
         const feeDocs = await getDocs(collection(db, 'fees'));
         const feesData = feeDocs.docs.map(doc => ({...doc.data() } as Fee));
         
-        studentsData.sort((a, b) => a.admissionNumber.localeCompare(b.admissionNumber));
-
         setStudents(studentsData);
         setClasses(classesData);
         setFees(feesData);
