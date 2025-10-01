@@ -5,22 +5,13 @@ import {
   CardTitle,
   CardDescription,
 } from '@/components/ui/card';
-import {
-  Tabs,
-  TabsContent,
-  TabsList,
-  TabsTrigger,
-} from '@/components/ui/tabs';
 import { Users, User, Book, Banknote } from 'lucide-react';
 import { db } from '@/lib/firebase';
 import { collection, getDocs } from 'firebase/firestore';
 import type { Student, Teacher, Class, Fee } from '@/lib/types';
-import { StudentsTable } from '@/components/dashboard/students-table';
-import { TeachersTable } from '@/components/dashboard/teachers-table';
-import { ClassesTable } from '@/components/dashboard/classes-table';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
-import { PlusCircle } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 
 async function getData() {
@@ -45,15 +36,6 @@ export default async function AdminPage() {
   const totalTeachers = teachers.length;
   const totalClasses = classes.length;
   const totalFeesDue = fees.reduce((acc, fee) => acc + fee.balance, 0);
-
-  const studentsWithClass = students.slice(0, 5).map(student => {
-    const studentClass = classes.find(c => c.id === student.classId);
-    const className = studentClass ? `${studentClass.name} ${studentClass.stream}`.trim() : 'N/A';
-    return {
-        ...student,
-        className: className
-    }
-  })
 
   return (
     <div className="space-y-6">
@@ -102,78 +84,42 @@ export default async function AdminPage() {
           </CardContent>
         </Card>
       </div>
-      <div>
-        <Tabs defaultValue="students" className="w-full">
-          <TabsList>
-            <TabsTrigger value="students">Students</TabsTrigger>
-            <TabsTrigger value="teachers">Teachers</TabsTrigger>
-            <TabsTrigger value="classes">Classes</TabsTrigger>
-          </TabsList>
-          <TabsContent value="students" className="mt-4">
-            <Card>
-              <CardHeader>
-                <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle>Manage Students</CardTitle>
-                        <CardDescription>View, search, and manage all student records.</CardDescription>
-                    </div>
-                    <Button asChild>
-                      <Link href="/admin/students">
-                        <Users className="mr-2 h-4 w-4" />
-                        Go to Student Management
-                      </Link>
-                    </Button>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <StudentsTable students={studentsWithClass} />
-                 <p className="text-sm text-muted-foreground mt-4">Showing first 5 students. Go to the student management page to see all.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="teachers" className="mt-4">
-            <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle>Manage Teachers</CardTitle>
-                        <CardDescription>Add, edit, or remove teacher records.</CardDescription>
-                    </div>
-                    <Button asChild>
-                      <Link href="/admin/teachers/add">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Teacher
-                      </Link>
-                    </Button>
+      <div className='grid gap-6 md:grid-cols-3'>
+        <Card className="col-span-1 md:col-span-3">
+          <CardHeader>
+              <CardTitle>Quick Actions</CardTitle>
+              <CardDescription>Navigate to key management sections.</CardDescription>
+          </CardHeader>
+          <CardContent className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/admin/students">
+                  <div className="flex items-center gap-4">
+                    <Users className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Manage Students</span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                <TeachersTable teachers={teachers} basePath="/admin/teachers" />
-                </CardContent>
-            </Card>
-          </TabsContent>
-          <TabsContent value="classes" className="mt-4">
-            <Card>
-                <CardHeader>
-                  <div className="flex justify-between items-center">
-                    <div>
-                        <CardTitle>Manage Classes</CardTitle>
-                        <CardDescription>Create new classes and assign teachers.</CardDescription>
-                    </div>
-                     <Button asChild>
-                      <Link href="/admin/classes/add">
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Add Class
-                      </Link>
-                    </Button>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/admin/teachers">
+                  <div className="flex items-center gap-4">
+                    <User className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Manage Teachers</span>
                   </div>
-                </CardHeader>
-                <CardContent>
-                <ClassesTable classes={classes} teachers={teachers} basePath="/admin/classes" />
-                </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </Button>
+              <Button asChild variant="outline" className="h-20 justify-between">
+                <Link href="/admin/classes">
+                  <div className="flex items-center gap-4">
+                    <Book className="h-8 w-8 text-primary" />
+                    <span className="font-semibold text-lg">Manage Classes</span>
+                  </div>
+                  <ArrowRight className="h-5 w-5 text-muted-foreground" />
+                </Link>
+              </Button>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
