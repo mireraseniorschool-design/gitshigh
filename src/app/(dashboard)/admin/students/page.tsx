@@ -18,7 +18,7 @@ import { collection, getDocs } from 'firebase/firestore';
 // This is a new Client Component to handle state and user interactions.
 function StudentListClient({ students: initialStudents, classes }: { students: Student[], classes: Class[] }) {
   'use client';
-  
+
   const { useMemo, useState } = require('react');
 
   const [searchTerm, setSearchTerm] = useState('');
