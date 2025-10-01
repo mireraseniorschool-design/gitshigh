@@ -2,3 +2,9 @@
   from = "/*"
   to = "/.netlify/functions/server"
   status = 200
+
+[[redirects]]
+  from = "http://:splat"
+  to = "https://:splat"
+  status = 301
+  force = true
