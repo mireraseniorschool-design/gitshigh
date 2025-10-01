@@ -7,9 +7,3 @@
   from = "/*"
   to = "/index.html"
   status = 200
-
-[[redirects]]
-  from = "http://:splat"
-  to = "https://:splat"
-  status = 301
-  force = true

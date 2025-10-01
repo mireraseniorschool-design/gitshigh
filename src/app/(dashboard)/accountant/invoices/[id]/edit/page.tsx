@@ -6,11 +6,16 @@ import {
   CardDescription,
 } from '@/components/ui/card';
 import { db } from '@/lib/firebase';
-import { doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, updateDoc } from 'firebase/firestore';
 import type { Fee, Student } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import { EditInvoiceForm } from '@/components/dashboard/edit-invoice-form';
 import { z } from 'zod';
+
+export async function generateStaticParams() {
+  const feesSnapshot = await getDocs(collection(db, 'fees'));
+  return feesSnapshot.docs.map(doc => ({ id: doc.id }));
+}
 
 async function getData(invoiceId: string) {
     const invoiceDocRef = doc(db, 'fees', invoiceId);

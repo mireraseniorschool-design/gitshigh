@@ -12,6 +12,11 @@ import { notFound } from 'next/navigation';
 import { EditClassForm } from '@/components/dashboard/edit-class-form';
 import { z } from 'zod';
 
+export async function generateStaticParams() {
+  const classesSnapshot = await getDocs(collection(db, 'classes'));
+  return classesSnapshot.docs.map(doc => ({ id: doc.id }));
+}
+
 async function getData(classId: string) {
     const classDocRef = doc(db, 'classes', classId);
     const classDocSnap = await getDoc(classDocRef);
