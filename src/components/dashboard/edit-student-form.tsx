@@ -12,6 +12,7 @@ import {
   FormDescription,
 } from '@/components/ui/form';
 import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Select,
   SelectContent,
@@ -28,6 +29,7 @@ import type { Student, Class, Subject } from '@/lib/types';
 import { Separator } from '@/components/ui/separator';
 
 const formSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
   classId: z.string().min(1, 'Please select a class.'),
   subjectIds: z.array(z.string()).min(1, 'Please select at least one subject.'),
 });
@@ -55,6 +57,7 @@ export function EditStudentForm({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: student.name,
       classId: student.classId,
       subjectIds: studentSubjects,
     },
@@ -83,6 +86,19 @@ export function EditStudentForm({
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8 max-w-2xl">
+        <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Full Name</FormLabel>
+                <FormControl>
+                    <Input placeholder="Enter student's full name" {...field} />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+        />
         <FormField
           control={form.control}
           name="classId"

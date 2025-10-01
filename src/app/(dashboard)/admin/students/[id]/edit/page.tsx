@@ -10,6 +10,7 @@ import { collection, getDocs, doc, getDoc, updateDoc, setDoc } from 'firebase/fi
 import type { Student, Class, Subject } from '@/lib/types';
 import { notFound } from 'next/navigation';
 import { EditStudentForm } from '@/components/dashboard/edit-student-form';
+import { z } from 'zod';
 
 async function getData(studentId: string) {
     const studentDocRef = doc(db, 'students', studentId);
@@ -33,6 +34,14 @@ async function getData(studentId: string) {
     return { student, classes, subjects, studentSubjects };
 }
 
+const updateStudentSchema = z.object({
+  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
+  classId: z.string().min(1, 'Please select a class.'),
+  subjectIds: z.array(z.string()).min(1, 'Please select at least one subject.'),
+});
+
+type UpdateStudentData = z.infer<typeof updateStudentSchema>;
+
 export default async function EditStudentPage({ params }: { params: { id: string } }) {
     const { student, classes, subjects, studentSubjects } = await getData(params.id);
 
@@ -40,11 +49,14 @@ export default async function EditStudentPage({ params }: { params: { id: string
         notFound();
     }
     
-    async function handleUpdateStudent(data: { classId: string; subjectIds: string[] }) {
+    async function handleUpdateStudent(data: UpdateStudentData) {
         'use server';
         try {
             const studentRef = doc(db, 'students', student!.id);
-            await updateDoc(studentRef, { classId: data.classId });
+            await updateDoc(studentRef, { 
+                name: data.name,
+                classId: data.classId 
+            });
 
             const studentSubjectsRef = collection(db, 'students', student!.id, 'subjects');
             // This is a simple approach. In a real app, you might want to diff the arrays
@@ -72,7 +84,7 @@ export default async function EditStudentPage({ params }: { params: { id: string
           <Card>
             <CardHeader>
               <CardTitle>{student.name}</CardTitle>
-              <CardDescription>Update the student's class assignment and subject registration.</CardDescription>
+              <CardDescription>Update the student's details, class assignment, and subject registration.</CardDescription>
             </CardHeader>
             <CardContent>
                 <EditStudentForm 
